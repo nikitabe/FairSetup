@@ -12,7 +12,7 @@ class CDBConnection
 
 		// local access on the production server
 		
-		$is_production = true;
+		$is_production = 1;
 		if( $is_production ){
 			$serverName 		= "WIN-8839QEJ1X7K";
 			$connectionInfo 	= array("Database" => "FairSetup" );  // For local connections
