@@ -1,4 +1,5 @@
 <?php
+
 class CDBConnection
 {
 	public $conn;
@@ -10,12 +11,16 @@ class CDBConnection
 		// $connectionInfo = array("Database" => "JoVETest", "UID" => "chris.macdonald", "PWD" => "Bacon27" );
 
 		// local access on the production server
-		$serverName 		= "WIN-8839QEJ1X7K";
-		$connectionInfo 	= array("Database" => "FairSetup" );  // For local connections
 		
-		//$serverName 		= "NIKITA-X200";
-		//$connectionInfo 	= array("Database" => "FairSetup_1" );  // For local connections
-
+		$is_production = true;
+		if( $is_production ){
+			$serverName 		= "WIN-8839QEJ1X7K";
+			$connectionInfo 	= array("Database" => "FairSetup" );  // For local connections
+		}
+		else{
+			$serverName 		= "NIKITA-X200";
+			$connectionInfo 	= array("Database" => "FairSetup_1" );  // For local connections
+		}
 		$this->conn = sqlsrv_connect( $serverName, $connectionInfo );
 		if( $this->conn === false )
 		{

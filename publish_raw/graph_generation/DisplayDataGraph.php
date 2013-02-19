@@ -5,9 +5,11 @@
  define("TYPE_STACKED",      "2");
 
  $company_id = 12;
- $date_start = '1/1/1900';
+ $date_start = '1/1/1900';  // not used yet
  $graph_type = TYPE_LINEAR;
- if( isset( $_REQUEST['type' ] ) ) $graph_type = $_REQUEST['type'];
+ 
+ if( isset( $_REQUEST['type' ] ) ) $graph_type = (int)$_REQUEST['type'];
+ if( isset( $_REQUEST['c_id' ] ) ) $company_id = (int)$_REQUEST['c_id'];
 ?>
   <!--Load the AJAX API-->
 
@@ -123,7 +125,7 @@
 				
 				$(document).ready(function() {
 					$.ajax({
-							  url: "GetData.php?c_id=<?php echo $company_id; ?>&date_start=<?php echo $date_start; ?>1/1/2000&date_end=",
+							  url: "GetData.php?c_id=<?php echo $company_id; ?>&date_start=<?php echo $date_start; ?>",
 							  //url: "UpToLauren_test.json",
 							  dataType:"json",
 							  cache: false
