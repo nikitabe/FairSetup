@@ -1,0 +1,12 @@
+{
+  "cols":[
+	{"id":"","label":"Users","pattern":"","type":"string"},
+	{"id":"","label":"Impact","pattern":"","type":"number"}],
+  "rows":[
+	{"c":[{"v":"Yiqiao Tang","f":null},{"v":"15","f":null}]},
+	{"c":[{"v":"Lauren Allen","f":null},{"v":"17","f":null}]},
+	{"c":[{"v":"Cynthia Carrillo","f":null},{"v":"10077","f":null}]},
+	{"c":[{"v":"Mark Penoyer-Kulin","f":null},{"v":"10079","f":null}]},
+	{"c":[{"v":"Dan Rubin","f":null},{"v":"10085","f":null}]}
+	]
+}

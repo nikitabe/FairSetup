@@ -1,0 +1,4 @@
+[
+{"name":"A","pointStart":1320120000000,"zIndex":1,"pointInterval":86400000,"data":[1, 2, 3, 4, 5]},
+{"name":"B","pointStart":1320120000001,"zIndex":1,"pointInterval":86400000,"data":[1, 2, 3, 4, 5]}
+]
