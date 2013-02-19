@@ -2,14 +2,19 @@
   <head>
 <?php
  define("TYPE_LINEAR",     "1");
- define("TYPE_STACKED",      "2");
+ define("TYPE_STACKED",    "2");
+ define("TYPE_IMPACT",     "3");
 
  $company_id = 12;
  $date_start = '1/1/1900';  // not used yet
  $graph_type = TYPE_LINEAR;
  
+ $titles = array( TYPE_LINEAR => "Impact over Time",
+				  TYPE_STACKED => "Proportional Impact Over Time",	
+				  TYPE_IMPACT => "Accumulated Impact over Time" );
+ 
  if( isset( $_REQUEST['type' ] ) ) $graph_type = (int)$_REQUEST['type'];
- if( isset( $_REQUEST['c_id' ] ) ) $company_id = (int)$_REQUEST['c_id'];
+ if( isset( $_REQUEST['id' ] ) ) $company_id = (int)$_REQUEST['id'];
 ?>
   <!--Load the AJAX API-->
 
@@ -24,18 +29,19 @@
 						,zoomType: 'x'
 						,spacingRight:20
 						<?php 
-							if( $graph_type == TYPE_STACKED ){ 
+							if( $graph_type == TYPE_STACKED || $graph_type == TYPE_IMPACT ){ 
 								echo ",type:'area'";
-							} 
+							}
+							
 						?>
 					},
 
 					title: {
-						text: 'Impact over time'
+						text: "<?php echo $titles[$graph_type]; ?>"
 					},
 			
 					subtitle: {
-						text: 'This is a subtitle'
+						//text: 'This is a subtitle'
 					},
 			
 					xAxis: {
@@ -99,6 +105,9 @@
 							if( $graph_type == TYPE_STACKED ){ 
 								echo "stacking: 'percent',";
 							} 
+							else if ( $graph_type == TYPE_IMPACT ){ 
+								echo "stacking: 'normal',";
+							}
 							?>
 							cursor: 'pointer',
 							point: {
@@ -179,9 +188,7 @@
 	<body>
 	<script src="highcharts/js/highcharts.js"></script>
 	<script src="highcharts/js/modules/exporting.js"></script>
-
-
-	<div id="waiting">
+	<div id="waiting" >
 		<p align = "center">
 		<img src="img/kitty_loader.gif"/>
 		</p>
@@ -192,8 +199,6 @@
 		An error occured.
 		</p>
 	</div>
-
 	<div id="graph_container" style="min-width: 400px; height: 400px; margin: 0 auto;"></div>
-
   </body>
 </html>

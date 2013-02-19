@@ -1,3 +1,6 @@
+<?php
+ if( isset( $_REQUEST['id' ] ) ) $company_id = (int)$_REQUEST['id'];
+ ?>
 <html>
   <head>
     <!--Load the AJAX API-->
@@ -39,10 +42,18 @@
 									color: '#000000',
 									connectorColor: '#000000',
 									formatter: function() {
-										return '<b>'+ this.point.name +'</b>: '+ 
+										return '<b>' + this.point.name +'</b>: ' +
 														Highcharts.numberFormat( this.percentage, 2 ) +' %';
 									}
 								}
+								/*,point: {
+									events: {
+										click: function() {
+											location.href = "http://www.google.com";//this.options.url;
+										}
+									}		
+								}*/
+								
 							}
 						},
 						series: [{
@@ -58,7 +69,7 @@
 				
 				$(document).ready(function() {
 					$.ajax({
-							  url: "GetData.php?c_id=12&date=now",
+							  url: "GetData.php?c_id=<?php echo $company_id;?>&date=now",
 							  dataType:"json",
 							  cache: false
 							  }).done( 

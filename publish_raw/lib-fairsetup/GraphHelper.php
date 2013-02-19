@@ -103,6 +103,7 @@ class CUser{
 		$obj = new CObject();
 		$obj->name = $this->name;
 		$obj->y = $this->impact;
+		$obj->id = $this->user_id;
 //		$obj->color = 'red';
 		return $obj;
 	}
