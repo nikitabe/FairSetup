@@ -129,35 +129,43 @@
 							  //url: "UpToLauren_test.json",
 							  dataType:"json",
 							  cache: false
-							  }).done( 
+							  })
+							  .fail(function() { 
+								 $( "#waiting" ).slideUp("fast", function(){
+									$( "#error" ).slideDown( "slow" );
+									});
+								 
+							  })
+							  .done( 
 								function( responseText ){
-/*									
-									var response = eval( responseText );
-									for( s in response ){
-										chart.showLoading( response[s].name );
-										chart.addSeries( response[s] );
-									}
-									chart.hideLoading();
-*/
-									options.series = eval( responseText );
-									
-										if( false )
-											options.series = [{ 	name: 'Nikita', 
-																	pointStart: Date.UTC(2010, 0, 1),
-																	pointInterval: 3600 * 1000 * 24, // one hour
-																	data: [1, 2, 1, 3, 4, 5, 6, 9, 1, 2, 4] },
-															   { 	name: 'Rob', 
-																	pointStart: Date.UTC(2010, 2, 1),
-																	pointInterval: 3600 * 1000 * 24, // one hour
-																	data: [6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
-																		   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
-																		   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
-																		   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
-																		   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
-																		   5] }] ;
-									
-								chart = new Highcharts.Chart( options );
-								
+									$( "#waiting" ).slideUp("fast", function(){
+	/*									
+										var response = eval( responseText );
+										for( s in response ){
+											chart.showLoading( response[s].name );
+											chart.addSeries( response[s] );
+										}
+										chart.hideLoading();
+	*/
+										options.series = eval( responseText );
+										
+											if( false )
+												options.series = [{ 	name: 'Nikita', 
+																		pointStart: Date.UTC(2010, 0, 1),
+																		pointInterval: 3600 * 1000 * 24, // one hour
+																		data: [1, 2, 1, 3, 4, 5, 6, 9, 1, 2, 4] },
+																   { 	name: 'Rob', 
+																		pointStart: Date.UTC(2010, 2, 1),
+																		pointInterval: 3600 * 1000 * 24, // one hour
+																		data: [6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+																			   5] }] ;
+										
+									chart = new Highcharts.Chart( options );
+									});								
 								});
 				});
 				
@@ -171,6 +179,19 @@
 	<body>
 	<script src="highcharts/js/highcharts.js"></script>
 	<script src="highcharts/js/modules/exporting.js"></script>
+
+
+	<div id="waiting">
+		<p align = "center">
+		<img src="img/kitty_loader.gif"/>
+		</p>
+	</div>
+
+	<div id="error" style="display:none;">
+		<p align = "center">
+		An error occured.
+		</p>
+	</div>
 
 	<div id="graph_container" style="min-width: 400px; height: 400px; margin: 0 auto;"></div>
 
