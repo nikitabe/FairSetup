@@ -5,7 +5,7 @@ $company_id = -1;
 $lc = array_change_key_case($_GET);
 
 if( isset ($lc['c_id'])) $company_id = (int)$lc['c_id'];	
-
+if( isset ($lc['date'])) $date_to_show = ($lc['date']);
 
 if( !is_numeric( $company_id ) || $company_id < 0 ){
 	echo "No company with that id";
@@ -17,9 +17,12 @@ include_once '../lib-fairsetup/DBConnection.php';
 $graph_data = new CGraphHelper();
 
 // This is a pie chart
-if( isset ($lc['date']) ){
+if( isset ( $date_to_show ) ){
+	// Reset to now...  for now...
+	$date_to_show = date( "m/d/Y" );
+	
 	$sql = "select UserID , FullName, EventLevel from GetCompanyBreakdown( ?, ? ) order by EventLevel DESC";
-	$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $company_id, "1/1/2013" ) );
+	$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $company_id, $date_to_show ) );
 	if( $stmt === false )
 	{
 		 echo "Error in statement preparation/execution.\n";

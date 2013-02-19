@@ -69,7 +69,7 @@
 				
 				$(document).ready(function() {
 					$.ajax({
-							  url: "GetData.php?c_id=<?php echo $company_id;?>&date=now",
+							  url: "GetData.php?c_id=<?php echo $company_id;?>&date=",
 							  dataType:"json",
 							  cache: false
 							  }).done( 
