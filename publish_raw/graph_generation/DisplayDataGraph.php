@@ -1,6 +1,8 @@
 <html>
   <head>
 <?php
+include_once "get_hs_color_palette.php";
+
  define("TYPE_LINEAR",     "1");
  define("TYPE_STACKED",    "2");
  define("TYPE_IMPACT",     "3");
@@ -20,6 +22,19 @@
 
 		<script type="text/javascript" src="jquery-1.9.0.min.js"></script>
 		<script type="text/javascript">
+			colorizeSeries = function( series, color )
+			{
+				series.color = color;
+				series.graph.attr({ 
+					stroke: color,
+					<?php if( $graph_type == TYPE_STACKED || $graph_type == TYPE_IMPACT ){ ?>
+					//	fill: color
+					<?php } ?>
+						
+				});
+				series.chart.legend.colorizeItem(series, series.visible);
+			}			
+		
 			var chart;
 			$(function () {
 			  var options = {
@@ -35,6 +50,7 @@
 							
 						?>
 					},
+					<?php echo get_hs_color_palette(); ?>,
 
 					title: {
 						text: "<?php echo $titles[$graph_type]; ?>"
@@ -95,9 +111,6 @@
 						, crosshairs: true
 					},
 					
-					loading: {
-						style: { background: 'url(img/kitty_loader.gif) no-repeat center' }
-					},
 			
 					plotOptions: {
 						series: {
@@ -110,22 +123,27 @@
 							}
 							?>
 							cursor: 'pointer',
-							point: {
-								events: {
-									click: function() {
-									}
-								}
-							},
 							marker: {
 								enabled: false,
 								states: {
-									hover: {
-										enabled: true,
-										radius: 5
+									hover:{
+										radius: 2
 									}
-								}
+								},
+								symbol: "circle"
+								
 							},
-							shadow: false
+							shadow: false, 
+							events: {
+								mouseOver: function() {
+									this.old_color = this.color;
+									colorizeSeries( this, "orange" );
+								},
+								mouseOut: function() {
+									colorizeSeries( this, this.old_color );
+								}
+							}
+							
 						}
 					},
 			

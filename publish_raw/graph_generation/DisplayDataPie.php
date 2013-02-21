@@ -1,4 +1,5 @@
 <?php
+include_once "get_hs_color_palette.php";
  if( isset( $_REQUEST['id' ] ) ) $company_id = (int)$_REQUEST['id'];
  ?>
 <html>
@@ -7,6 +8,13 @@
 
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 		<script type="text/javascript">
+				var chart;
+		
+			colorizeSeries = function( item, color )
+			{
+				item.color = color;
+			}			
+		
 			$(function () {
 				var options = {
 						chart: {
@@ -15,17 +23,7 @@
 							plotBorderWidth: null,
 							plotShadow: false
 						},
-						colors: [
-								'#4572A7', 
-								'#AA4643', 
-								'#89A54E', 
-								'#80699B', 
-								'#3D96AE', 
-								'#DB843D', 
-								'#92A8CD', 
-								'#A47D7C', 
-								'#B5CA92'							
-								],
+						<?php echo get_hs_color_palette(); ?>,
 						title: {
 							text: 'Impact Breakdown'
 						},
@@ -46,26 +44,40 @@
 														Highcharts.numberFormat( this.percentage, 2 ) +' %';
 									}
 								}
-								/*,point: {
+								,point: {
 									events: {
 										click: function() {
+										/*
 											location.href = "http://www.google.com";//this.options.url;
-										}
-									}		
-								}*/
-								
+											location.target = "_top";
+											*/
+										},
+										mouseOver: function() {
+											if( !this.selected ) this.select();
+											
+											this.old_color = this.color;
+											colorizeSeries( this, "orange" );
+											}
+
+									}
+								}
 							}
+
 						},
 						series: [{
 							type: 'pie',
 							name: 'Impact Breakdown',
+							states: {
+								select: {
+									color: 'orange'
+								}
+							},
 							data: []
 						}],
 						credits : {
 						  enabled : false
 						}
 					}
-				var chart;
 				
 				$(document).ready(function() {
 					$.ajax({
