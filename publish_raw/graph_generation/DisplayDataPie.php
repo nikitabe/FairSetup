@@ -8,7 +8,7 @@ include_once "get_hs_color_palette.php";
 
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 		<script type="text/javascript">
-				var chart;
+			var chart;
 		
 			colorizeSeries = function( item, color )
 			{
@@ -56,10 +56,17 @@ include_once "get_hs_color_palette.php";
 										},
 										mouseOver: function() {
 											if( !this.selected ) this.select();
+
+											if( old_slice ){
+												console.log( old_slice );
+												old_slice.color = old_slice.old_color;
+												old_slice = 0;
+											}
 											
 											this.old_color = this.color;
 											colorizeSeries( this, "orange" );
-											}
+											
+										}
 
 									}
 								}
@@ -89,8 +96,15 @@ include_once "get_hs_color_palette.php";
 							  }).done( 
 								function( responseText ){
 									options.series[0].data = eval( responseText );
-									//alert( options.series.data );
+		
 									chart = new Highcharts.Chart( options );
+
+									var c = chart.series[0].points.length;
+									if( c > 0 ){
+										c = c > 1 ? 1 : c;
+										chart.series[0].points[c+1].select();
+									}
+									
 								});
 				});
 				
