@@ -103,13 +103,7 @@ include_once "get_hs_color_palette.php";
 			
 					legend: {
 						verticalAlign: 'bottom',
-						borderWidth: 0,
-						events: {
-							mouseOver: function() {
-								console.log( this );
-							}
-						}
-
+						borderWidth: 0
 					},
 			
 					tooltip: {
