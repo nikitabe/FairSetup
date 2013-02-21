@@ -94,7 +94,7 @@ function get_hs_color_palette()
 	for( $i=0; $i<20; $i++ )
 	{
 		$j = $i < 10 ? $i : 10;
-		$c = HSVtoRGB( Array( ((45 + $i*50) % 360)/360, 0, 0.35 + $j * 0.03) );
+		$c = HSVtoRGB( Array( ((45 + $i*50) % 360)/360, 0, 0.35 + $j * 0.035) );
 		$colors[$i] = rgb2html( $c[0], $c[1], $c[2] );
 	}
 

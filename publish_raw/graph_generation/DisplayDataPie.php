@@ -28,8 +28,9 @@ include_once "get_hs_color_palette.php";
 							text: 'Impact Breakdown'
 						},
 						tooltip: {
-							pointFormat: '{series.name}: <b>{point.percentage}%</b>',
-							percentageDecimals: 2
+							pointFormat: '{series.name}: <b>{point.percentage}%</b> ({point.y})',
+							percentageDecimals: 2,
+							valueDecimals: 2
 						},
 						plotOptions: {
 							pie: {
@@ -41,7 +42,8 @@ include_once "get_hs_color_palette.php";
 									connectorColor: '#000000',
 									formatter: function() {
 										return '<b>' + this.point.name +'</b>: ' +
-														Highcharts.numberFormat( this.percentage, 2 ) +' %';
+														Highcharts.numberFormat( this.percentage, 2 ) +' %' +
+														' (' + Highcharts.numberFormat( this.y, 2 ) + ')' ;
 									}
 								}
 								,point: {

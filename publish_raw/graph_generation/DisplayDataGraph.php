@@ -103,12 +103,44 @@ include_once "get_hs_color_palette.php";
 			
 					legend: {
 						verticalAlign: 'bottom',
-						borderWidth: 0
+						borderWidth: 0,
+						events: {
+							mouseOver: function() {
+								console.log( this );
+							}
+						}
+
 					},
 			
 					tooltip: {
 						  shared: true
 						, crosshairs: true
+						,formatter: function()
+						{
+							var d = new Date( this.x );
+							var s = '<b>' + (d.getMonth() + 1 ) + '/' + d.getDate() + '/' + d.getFullYear() + '</b>';
+
+							var tot = 0;
+							$.each( this.points, function( i, point ){
+								tot += point.y;
+							});
+							
+							$.each( this.points, function( i, point ){
+								if( point.y > 0 ){
+									s += '<br/>';
+									
+									if( point.percentage < 10 ) s += ' ';
+									s += '<b>' + Highcharts.numberFormat( tot ? 100 * point.y / tot : 0, 2 ) + '%</b>';
+									s += " - ";
+									s += '<span style="color:' + point.series.color + '">';
+									s += point.series.name + ": ";
+									s += ' (' + Highcharts.numberFormat( point.y, 2 ) + ')';
+									s += '</span>';
+								}
+							});
+							return s;
+						}
+						//,pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>'
 					},
 					
 			
@@ -143,7 +175,6 @@ include_once "get_hs_color_palette.php";
 									colorizeSeries( this, this.old_color );
 								}
 							}
-							
 						}
 					},
 			
