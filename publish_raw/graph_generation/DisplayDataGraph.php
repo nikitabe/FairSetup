@@ -244,8 +244,10 @@ include_once "get_hs_color_palette.php";
 										chart = new Highcharts.Chart( options );
 										var c = chart.series.length;
 										if( c > 0 ){
+										
 											c = Math.floor(Math.random()*c)
 											chart.series[c].onMouseOver();
+											
 /*
 	// This is not working right for now.
 											// Find the position
@@ -271,8 +273,8 @@ include_once "get_hs_color_palette.php";
   <body>
 
 	<body>
-	<script src="highcharts/js/highcharts.js"></script>
-	<script src="highcharts/js/modules/exporting.js"></script>
+	<script src="libs/highcharts_v2/js/highcharts.js"></script>
+	<script src="libs/highcharts_v2/js/modules/exporting.js"></script>
 	<div id="waiting" >
 		<p align = "center">
 		<img src="img/kitty_loader.gif"/>

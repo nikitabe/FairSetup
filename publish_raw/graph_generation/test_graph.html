@@ -1,0 +1,207 @@
+
+<html>
+  <head>
+  <!--Load the AJAX API-->
+
+		<script type="text/javascript" src="jquery-1.9.0.min.js"></script>
+		<script type="text/javascript">
+colorizeSeries = function( series, color )
+{
+	console.log( "color: " + color );
+    series.color = color;
+    series.graph.attr({ 
+        stroke: color,
+        //fill: color
+    });
+    //sechart.legend.colorizeItem(series, series.visible);
+	/*
+    $.each(series.data, function(i, point) {
+        point.graphic.attr({
+            fill: color
+        });
+    });*/
+    series.redraw();
+
+}		
+		
+			var chart;
+			$(function () {
+			  var options = {
+					credits: false, 
+					chart: {
+						renderTo: 'graph_container'
+						,zoomType: 'x'
+						,spacingRight:20
+						//,type:'area'					
+					}
+					,colors: ['#595959','#636363','#6d6d6d','#777777','#828282','#8c8c8c','#969696','#a0a0a0','#aaaaaa','#b5b5b5','#bfbfbf','#c9c9c9','#d3d3d3','#dddddd','#e8e8e8','#f2f2f2','#fcfcfc','#ffffff','#ffffff','#ffffff'],
+
+					title: {
+						text: "Proportional Impact Over Time"
+					},
+			
+					subtitle: {
+						//text: 'This is a subtitle'
+					},
+			
+					xAxis: {
+						type: 'datetime',
+						labels: {
+							align: 'left',
+							x: 3,
+							y: -3
+						},
+						maxZoom: 7 * 24 * 3600000
+					},
+			
+					yAxis: [{ // left y axis
+						title: {
+							text: null
+						},
+						labels: {
+							align: 'left',
+							x: 3,
+							y: 16,
+							formatter: function() {
+								return Highcharts.numberFormat(this.value, 0);
+							}
+						},
+						showFirstLabel: false
+					}, { // right y axis
+						linkedTo: 0,
+						gridLineWidth: 0,
+						opposite: true,
+						title: {
+							text: null
+						},
+						labels: {
+							align: 'right',
+							x: -3,
+							y: 16,
+							formatter: function() {
+								return Highcharts.numberFormat(this.value, 0);
+							}
+						},
+						showFirstLabel: false
+					}],
+			
+					legend: {
+						verticalAlign: 'bottom',
+						borderWidth: 0
+					},
+			
+					tooltip: {
+						  shared: true
+						, crosshairs: true
+					},
+					
+					loading: {
+						style: { background: 'url(img/kitty_loader.gif) no-repeat center' }
+					},
+			
+					plotOptions: {
+						series: {
+							//stacking: 'percent',							
+							cursor: 'pointer',
+							point: {
+								events: {
+									click: function() {
+									}
+								}
+							},
+							marker: {
+								enabled: false,
+								states: {
+									hover: {
+										enabled: true,
+										radius: 5
+									}
+								}
+							},
+							shadow: false
+							, events: {
+								mouseOver: function() {
+									this.old_color = this.color;
+									console.log( this );
+									colorizeSeries( this, "orange" );
+								},
+								mouseOut: function() {
+									colorizeSeries( this, this.old_color );
+								}
+							}
+						}
+					},
+			
+					series: []
+				};				
+				
+				$(document).ready(function() {
+					$.ajax({
+							  url: "GetData.php?c_id=12&date_start=1/1/1900",
+							  //url: "UpToLauren_test.json",
+							  dataType:"json",
+							  cache: false
+							  })
+							  .fail(function() { 
+								 $( "#waiting" ).slideUp("fast", function(){
+									$( "#error" ).slideDown( "slow" );
+									});
+								 
+							  })
+							  .done( 
+								function( responseText ){
+									$( "#waiting" ).slideUp("fast", function(){
+	/*									
+										var response = eval( responseText );
+										for( s in response ){
+											chart.showLoading( response[s].name );
+											chart.addSeries( response[s] );
+										}
+										chart.hideLoading();
+	*/
+										options.series = eval( responseText );
+										
+											if( false )
+												options.series = [{ 	name: 'Nikita', 
+																		pointStart: Date.UTC(2010, 0, 1),
+																		pointInterval: 3600 * 1000 * 24, // one hour
+																		data: [1, 2, 1, 3, 4, 5, 6, 9, 1, 2, 4] },
+																   { 	name: 'Rob', 
+																		pointStart: Date.UTC(2010, 2, 1),
+																		pointInterval: 3600 * 1000 * 24, // one hour
+																		data: [6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+																			   5] }] ;
+										
+									chart = new Highcharts.Chart( options );
+									});								
+								});
+				});
+				
+			});
+		</script>
+
+</head>
+
+  <body>
+
+	<body>
+	<script src="highcharts/js/highcharts.js"></script>
+	<script src="highcharts/js/modules/exporting.js"></script>
+	<div id="waiting" >
+		<p align = "center">
+		<img src="img/kitty_loader.gif"/>
+		</p>
+	</div>
+
+	<div id="error" style="display:none;">
+		<p align = "center">
+		An error occured.
+		</p>
+	</div>
+	<div id="graph_container" style="min-width: 400px; height: 400px; margin: 0 auto;"></div>
+  </body>
+</html>
