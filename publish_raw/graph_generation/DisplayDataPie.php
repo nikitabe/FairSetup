@@ -57,12 +57,6 @@ include_once "get_hs_color_palette.php";
 										mouseOver: function() {
 											if( !this.selected ) this.select();
 
-											if( old_slice ){
-												console.log( old_slice );
-												old_slice.color = old_slice.old_color;
-												old_slice = 0;
-											}
-											
 											this.old_color = this.color;
 											colorizeSeries( this, "orange" );
 											
