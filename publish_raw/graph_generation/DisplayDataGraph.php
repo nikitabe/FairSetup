@@ -246,7 +246,8 @@ include_once "get_hs_color_palette.php";
 										if( c > 0 ){
 											c = Math.floor(Math.random()*c)
 											chart.series[c].onMouseOver();
-
+/*
+	// This is not working right for now.
 											// Find the position
 											var l = chart.series[0].points.length;
 											var i;
@@ -255,7 +256,7 @@ include_once "get_hs_color_palette.php";
 												var p = chart.series[c].points[i-1];
 												chart.tooltip.refresh( [p] ); //chart.series[0].points[10]
 											}
-											
+*/											
 												
 										}
 									});

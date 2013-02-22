@@ -101,8 +101,8 @@ include_once "get_hs_color_palette.php";
 
 									var c = chart.series[0].points.length;
 									if( c > 0 ){
-										c = c > 1 ? 1 : c;
-										chart.series[0].points[c+1].select();
+										c = Math.floor(Math.random()*c)
+										chart.series[0].points[c].select();
 									}
 									
 								});
