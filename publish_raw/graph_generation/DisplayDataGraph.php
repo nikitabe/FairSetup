@@ -9,6 +9,7 @@ include_once "get_hs_color_palette.php";
 
  $company_id = 12;
  $date_start = '1/1/1900';  // not used yet
+ $cur_utc_stamp = time();
  $graph_type = TYPE_LINEAR;
  
  $titles = array( TYPE_LINEAR => "Impact over Time",
@@ -46,12 +47,12 @@ include_once "get_hs_color_palette.php";
 						<?php 
 							if( $graph_type == TYPE_STACKED || $graph_type == TYPE_IMPACT ){ 
 								echo ",type:'area'";
-							}
-							
+							}							
 						?>
 					},
 					<?php echo get_hs_color_palette(); ?>,
 
+							
 					title: {
 						text: "<?php echo $titles[$graph_type]; ?>"
 					},
@@ -134,6 +135,7 @@ include_once "get_hs_color_palette.php";
 							});
 							return s;
 						}
+
 						//,pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>'
 					},
 					
@@ -169,6 +171,10 @@ include_once "get_hs_color_palette.php";
 									colorizeSeries( this, this.old_color );
 								}
 							}
+							<?php if( $graph_type == TYPE_STACKED || $graph_type == TYPE_IMPACT ){ ?>
+								,trackByArea: 'true'
+							<?php } ?>
+							
 						}
 					},
 			
@@ -216,8 +222,22 @@ include_once "get_hs_color_palette.php";
 																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
 																			   5] }] ;
 										
-									chart = new Highcharts.Chart( options );
-									});								
+										chart = new Highcharts.Chart( options );
+										var c = chart.series.length;
+										if( c > 0 ){
+											c = Math.floor(Math.random()*c)
+											chart.series[c].onMouseOver();
+
+											// Find the position
+											var l = chart.series[0].points.length;
+											var i;
+											for( i = 0; i < l && (chart.series[1].points[i].x / 1000 < <?php echo $cur_utc_stamp ?>); i++ );
+											if( i > 0 ){
+												chart.tooltip.refresh( [chart.series[c].points[i-1]] ); //chart.series[0].points[10]
+											}
+												
+										}
+									});
 								});
 				});
 				
