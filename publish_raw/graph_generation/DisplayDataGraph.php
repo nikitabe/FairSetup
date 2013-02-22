@@ -68,7 +68,26 @@ include_once "get_hs_color_palette.php";
 							x: 3,
 							y: -3
 						},
-						maxZoom: 7 * 24 * 3600000
+						maxZoom: 7 * 24 * 3600000,
+						plotLines: [{
+							value: <?php echo $cur_utc_stamp * 1000 ?>,
+							color: '#ff0000',
+							width: 1,
+							id: 'plot-line-now',
+							label: {
+								text: 'Today',
+								textAlign: 'left'
+								
+							}
+						}]
+												// add line of today
+							/*					chart.xAxis[0].addPlotLine({
+													value: <?php echo $cur_utc_stamp * 1000 ?>,
+													color: '#ff0000',
+													width: 1,
+													id: 'plot-line-now'
+												});*/
+						
 					},
 			
 					yAxis: [{ // left y axis
@@ -153,7 +172,7 @@ include_once "get_hs_color_palette.php";
 							cursor: 'pointer',
 							marker: {
 								enabled: false,
-								states: {
+									states: {
 									hover:{
 										radius: 2
 									}
@@ -231,10 +250,12 @@ include_once "get_hs_color_palette.php";
 											// Find the position
 											var l = chart.series[0].points.length;
 											var i;
-											for( i = 0; i < l && (chart.series[1].points[i].x / 1000 < <?php echo $cur_utc_stamp ?>); i++ );
+											for( i = 0; i < l && (chart.series[c].points[i].x / 1000 < <?php echo $cur_utc_stamp ?>); i++ );
 											if( i > 0 ){
-												chart.tooltip.refresh( [chart.series[c].points[i-1]] ); //chart.series[0].points[10]
+												var p = chart.series[c].points[i-1];
+												chart.tooltip.refresh( [p] ); //chart.series[0].points[10]
 											}
+											
 												
 										}
 									});
