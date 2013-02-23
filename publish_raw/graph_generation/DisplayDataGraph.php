@@ -101,7 +101,7 @@ include_once "get_hs_color_palette.php";
 							x: 3,
 							y: 16,
 							formatter: function() {
-								return Highcharts.numberFormat(this.value, 0);
+								return Highcharts.numberFormat(this.value, 2);
 							}
 						},
 						showFirstLabel: false
