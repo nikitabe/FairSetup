@@ -18,6 +18,8 @@ include_once "get_hs_color_palette.php";
  
  if( isset( $_REQUEST['type' ] ) ) $graph_type = (int)$_REQUEST['type'];
  if( isset( $_REQUEST['id' ] ) ) $company_id = (int)$_REQUEST['id'];
+ if( isset( $_REQUEST['user_id' ] ) ) $user_id = (int)$_REQUEST['user_id'];
+ $is_group = !isset( $user_id );
 ?>
   <!--Load the AJAX API-->
 
@@ -122,8 +124,12 @@ include_once "get_hs_color_palette.php";
 					}],
 			
 					legend: {
+						<?php if( $is_group ){ ?>
 						verticalAlign: 'bottom',
 						borderWidth: 0
+						<?php }else{ ?>
+						enabled: false
+						<?php } ?>
 					},
 			
 					tooltip: {
@@ -143,9 +149,11 @@ include_once "get_hs_color_palette.php";
 								if( point.y > 0 ){
 									s += '<br/>';
 									
+									<?php if( $is_group ){ ?>
 									if( point.percentage < 10 ) s += ' ';
 									s += '<b>' + Highcharts.numberFormat( tot ? 100 * point.y / tot : 0, 2 ) + '%</b>';
 									s += " - ";
+									<?php } ?>
 									s += '<span style="color:' + point.series.color + '">';
 									s += point.series.name + ": ";
 									s += ' (' + Highcharts.numberFormat( point.y, 2 ) + ')';
@@ -160,6 +168,15 @@ include_once "get_hs_color_palette.php";
 					
 			
 					plotOptions: {
+						<?php if( !$is_group ){ ?>
+						line: {
+							states: {
+								hover: {
+									lineWidth: 2,
+								}
+							}
+						},
+						<?php } ?>
 						series: {
 							<?php
 							if( $graph_type == TYPE_STACKED ){ 
@@ -174,14 +191,21 @@ include_once "get_hs_color_palette.php";
 								enabled: false,
 									states: {
 									hover:{
+									<?php if( $is_group ){ ?>
 										radius: 2
+									<?php }else{ ?>
+										radius: 4
+										,fillColor: "orange"
+									<?php } ?>
 									}
 								},
 								symbol: "circle"
 								
+								
 							},
 							shadow: false, 
 							events: {
+								<?php if( $is_group ){ ?>
 								mouseOver: function() {
 									this.old_color = this.color;
 									colorizeSeries( this, "orange" );
@@ -189,6 +213,7 @@ include_once "get_hs_color_palette.php";
 								mouseOut: function() {
 									colorizeSeries( this, this.old_color );
 								}
+								<?php } ?>
 							}
 							<?php if( $graph_type == TYPE_STACKED || $graph_type == TYPE_IMPACT ){ ?>
 								,trackByArea: 'true'
@@ -201,8 +226,13 @@ include_once "get_hs_color_palette.php";
 				};				
 				
 				$(document).ready(function() {
+					var data_url = "GetData.php?c_id=<?php echo $company_id; ?>";
+					<?php if( !$is_group ){ ?>
+							data_url = data_url + "&u_id=<?php echo $user_id;?>";
+					<?php } ?>
+				
 					$.ajax({
-							  url: "GetData.php?c_id=<?php echo $company_id; ?>&date_start=<?php echo $date_start; ?>",
+							  url: data_url,
 							  //url: "UpToLauren_test.json",
 							  dataType:"json",
 							  cache: false
@@ -216,16 +246,9 @@ include_once "get_hs_color_palette.php";
 							  .done( 
 								function( responseText ){
 									$( "#waiting" ).slideUp("fast", function(){
-	/*									
-										var response = eval( responseText );
-										for( s in response ){
-											chart.showLoading( response[s].name );
-											chart.addSeries( response[s] );
-										}
-										chart.hideLoading();
-	*/
-										options.series = eval( responseText );
-										
+										options.series = eval( responseText );										
+
+											// Testing Code
 											if( false )
 												options.series = [{ 	name: 'Nikita', 
 																		pointStart: Date.UTC(2010, 0, 1),
@@ -244,11 +267,13 @@ include_once "get_hs_color_palette.php";
 										chart = new Highcharts.Chart( options );
 										var c = chart.series.length;
 										if( c > 0 ){
-										
+										<?php if( $is_group ){ ?>
 											c = Math.floor(Math.random()*c)
 											chart.series[c].onMouseOver();
+										<?php } ?>
 											
 /*
+	// OnFirstLoad - display tooltip at the current position
 	// This is not working right for now.
 											// Find the position
 											var l = chart.series[0].points.length;

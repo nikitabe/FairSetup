@@ -76,7 +76,7 @@ class CUser{
 	public $company_id;
 	public $history;
 	
-	function __construct( $user_id, $company_id, $name, $impact = NULL )
+	function __construct( $user_id, $company_id, $name = NULL, $impact = NULL )
 	{
 		$this->user_id = $user_id;
 		$this->company_id = $company_id;
@@ -115,7 +115,7 @@ class CUser{
 															data: [1, 2, 1, 3, 4, 5, 6, 9, 1, 2, 4] },
 */
 
-	function getHistoryStateHighchart()
+	function getHistoryStateHighchart( $individual_user = false )
 	{
 		// NOT READY TO YET
 		global $db_conn;
@@ -129,7 +129,10 @@ class CUser{
 		}
 
 		$obj = new CObject();
-		$obj->name = $this->name;
+		if( $individual_user )
+			$obj->name = "Impact";
+		else
+			$obj->name = $this->name;
 		$obj->pointStart = '0'; // so that it shows before data
 		$obj->pointInterval = 3600 * 1000 * 24;
 		$obj->data = array();

@@ -4,13 +4,20 @@ $company_id = -1;
 
 $lc = array_change_key_case($_GET);
 
-if( isset ($lc['c_id'])) $company_id = (int)$lc['c_id'];	
-if( isset ($lc['date'])) $date_to_show = ($lc['date']);
+if( isset ($lc['c_id'])) $company_id 	= (int)$lc['c_id'];	
+if( isset ($lc['date'])) $date_to_show 	= ($lc['date']);
+if( isset ($lc['u_id'])) $user_id 		= (int)($lc['u_id']);
 
 if( !is_numeric( $company_id ) || $company_id < 0 ){
 	echo "No company with that id";
 	exit;
 }
+
+if( isset( $user_id ) && (!is_numeric( $user_id ) || $user_id < 0 ) ){
+	echo "No user with that id";
+	exit;
+}
+
 include_once "../lib-fairsetup/GraphHelper.php";
 include_once '../lib-fairsetup/DBConnection.php';
 
@@ -18,6 +25,7 @@ $graph_data = new CGraphHelper();
 
 // This is a pie chart
 if( isset ( $date_to_show ) ){
+// Get company-related information
 	// Reset to now...  for now...
 	$date_to_show = date( "m/d/Y" );
 	
@@ -42,7 +50,7 @@ if( isset ( $date_to_show ) ){
 
 	echo $string;
 }
-elseif(isset ($_GET['date_start'])){
+elseif(isset ( $company_id) && !isset( $user_id ) ){
 	$sql = "select UserId, NameInCompany from user_to_company where CompanyID = ?";
 	$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $company_id, "1/1/2013" ) );
 	if( $stmt === false )
@@ -63,6 +71,17 @@ elseif(isset ($_GET['date_start'])){
 	$string = json_encode( $data );
 
 	echo $string;
+}
+// Get user-related information
+elseif( isset ( $company_id) && isset( $user_id ) ){
+	$user = new CUser( $user_id, $company_id );
+
+	$data = array( $user->getHistoryStateHighchart( true ) );
+	
+	$string = json_encode( $data );
+
+	echo $string;
+	
 }
 else
 {
