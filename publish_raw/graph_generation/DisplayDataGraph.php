@@ -255,7 +255,7 @@ include_once "get_hs_color_palette.php";
 																		pointInterval: 3600 * 1000 * 24, // one hour
 																		data: [1, 2, 1, 3, 4, 5, 6, 9, 1, 2, 4] },
 																   { 	name: 'Rob', 
-																		pointStart: Date.UTC(2010, 2, 1),
+																		pointStart: Date.UTC(2010, 0, 1),
 																		pointInterval: 3600 * 1000 * 24, // one hour
 																		data: [6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
 																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
@@ -300,6 +300,14 @@ include_once "get_hs_color_palette.php";
 	<body>
 	<script src="libs/highcharts_v2/js/highcharts.js"></script>
 	<script src="libs/highcharts_v2/js/modules/exporting.js"></script>
+	<!--
+	<script src="libs/highcharts_v3/js/highcharts.js"></script>
+	<script src="libs/highcharts_v3/js/modules/exporting.js"></script>
+
+	<script src="http://github.highcharts.com/v3.0Beta/highcharts.js"></script>
+	<script src="http://github.highcharts.com/v3.0Beta/modules/exporting.js"></script>
+	-->
+
 	<div id="waiting" >
 		<p align = "center">
 		<img src="img/kitty_loader.gif"/>
