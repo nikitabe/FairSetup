@@ -1,6 +1,7 @@
 <?php
 include_once "get_hs_color_palette.php";
  if( isset( $_REQUEST['id' ] ) ) $company_id = (int)$_REQUEST['id'];
+ if( isset( $_REQUEST['group_id' ] ) ) $group_id = (int)$_REQUEST['group_id'];
  ?>
 <html>
   <head>
@@ -84,7 +85,9 @@ include_once "get_hs_color_palette.php";
 				
 				$(document).ready(function() {
 					$.ajax({
-							  url: "GetData.php?c_id=<?php echo $company_id;?>&date=",
+							  url: "GetData.php?c_id=<?php echo $company_id;?><?php 
+								if( isset( $group_id ) ) 
+									echo "&group_id=".$group_id ?>&date=",
 							  dataType:"json",
 							  cache: false
 							  }).done( 

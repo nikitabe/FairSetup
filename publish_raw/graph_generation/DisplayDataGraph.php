@@ -19,6 +19,7 @@ include_once "get_hs_color_palette.php";
  if( isset( $_REQUEST['type' ] ) ) $graph_type = (int)$_REQUEST['type'];
  if( isset( $_REQUEST['id' ] ) ) $company_id = (int)$_REQUEST['id'];
  if( isset( $_REQUEST['user_id' ] ) ) $user_id = (int)$_REQUEST['user_id'];
+ if( isset( $_REQUEST['group_id' ] ) ) $group_id = (int)$_REQUEST['group_id'];
  $is_group = !isset( $user_id );
 ?>
   <!--Load the AJAX API-->
@@ -229,6 +230,9 @@ include_once "get_hs_color_palette.php";
 					var data_url = "GetData.php?c_id=<?php echo $company_id; ?>";
 					<?php if( !$is_group ){ ?>
 							data_url = data_url + "&u_id=<?php echo $user_id;?>";
+					<?php } ?>
+					<?php if( isset( $group_id)  ){ ?>
+							data_url = data_url + "&group_id=<?php echo $group_id ?>";
 					<?php } ?>
 				
 					$.ajax({

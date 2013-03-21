@@ -3,10 +3,13 @@
 $company_id = -1;
 
 $lc = array_change_key_case($_GET);
+$group_id = -1;
 
 if( isset ($lc['c_id'])) $company_id 	= (int)$lc['c_id'];	
 if( isset ($lc['date'])) $date_to_show 	= ($lc['date']);
 if( isset ($lc['u_id'])) $user_id 		= (int)($lc['u_id']);
+if( isset ($lc['group_id'])) $group_id 	= (int)($lc['group_id']);
+
 
 if( !is_numeric( $company_id ) || $company_id < 0 ){
 	echo "No company with that id";
@@ -29,7 +32,10 @@ if( isset ( $date_to_show ) ){
 	// Reset to now...  for now...
 	$date_to_show = date( "m/d/Y" );
 	
-	$sql = "select UserID , FullName, EventLevel from GetCompanyBreakdown( ?, ? ) order by EventLevel DESC";
+	$sql = "select UserID , FullName, EventLevel from GetCompanyBreakdown( ?, ? )";
+	if( $group_id > 0 )
+		$sql .= " WHERE GroupID = " . $group_id; 
+	$sql .= " order by EventLevel DESC";
 	$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $company_id, $date_to_show ) );
 	if( $stmt === false )
 	{
@@ -51,8 +57,15 @@ if( isset ( $date_to_show ) ){
 	echo $string;
 }
 elseif(isset ( $company_id) && !isset( $user_id ) ){
-	$sql = "select UserId, NameInCompany from user_to_company where CompanyID = ?";
-	$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $company_id, "1/1/2013" ) );
+	$sql = "select uc.UserId, NameInCompany from user_to_company uc left join user_to_group ug on uc.UserID = ug.UserID and uc.CompanyID = ug.CompanyID where uc.CompanyID = ?";
+	$params = Array( $company_id );
+
+	if( $group_id > 0 ){
+		$params[1] = $group_id;
+		$sql .= " and ug.GroupID = ?";
+	}
+		
+	$stmt = sqlsrv_query( $db_conn->conn, $sql, $params );
 	if( $stmt === false )
 	{
 		 echo "Error in statement preparation/execution.\n";
