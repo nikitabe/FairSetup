@@ -136,7 +136,7 @@ class CUser{
 		$obj->pointStart = '0'; // so that it shows before data
 		$obj->pointInterval = 3600 * 1000 * 24;
 		$obj->data = array();
-		$obj->zIndex = 1;
+		$obj->zIndex = 1; //$this->user_id;
 
 		$values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH );
 		if( $values ){

@@ -30,12 +30,16 @@ include_once "get_hs_color_palette.php";
 			{
 				series.color = color;
 				series.graph.attr({ 
-					stroke: color,
-					<?php if( $graph_type == TYPE_STACKED || $graph_type == TYPE_IMPACT ){ ?>
-					//	fill: color
-					<?php } ?>
-						
+					stroke: color,						
 				});
+				<?php if( $graph_type == TYPE_STACKED || $graph_type == TYPE_IMPACT ){ ?>
+				/*
+				// This isn't working yet
+				series.update({
+					color: color
+				});*/
+				<?php } ?>
+				
 				series.chart.legend.colorizeItem(series, series.visible);
 			}			
 		
@@ -302,8 +306,8 @@ include_once "get_hs_color_palette.php";
   <body>
 
 	<body>
-	<script src="libs/highcharts_v2/js/highcharts.js"></script>
-	<script src="libs/highcharts_v2/js/modules/exporting.js"></script>
+	<script src="libs/highcharts_v3.0.0/js/highcharts.js"></script>
+	<script src="libs/highcharts_v2.0.0/js/modules/exporting.js"></script>
 	<!--
 	<script src="libs/highcharts_v3/js/highcharts.js"></script>
 	<script src="libs/highcharts_v3/js/modules/exporting.js"></script>
