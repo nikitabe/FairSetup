@@ -7,7 +7,7 @@ include_once "get_hs_color_palette.php";
   <head>
     <!--Load the AJAX API-->
 
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script type="text/javascript" src="jquery-1.9.0.min.js"></script>
 		<script type="text/javascript">
 			var chart;
 		
