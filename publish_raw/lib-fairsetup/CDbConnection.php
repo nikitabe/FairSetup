@@ -15,7 +15,7 @@ class CDBConnection
 		$is_production = file_exists( "../../../production_tag.txt" );
 		if( $is_production ){
 			$serverName 		= "WIN-8839QEJ1X7K";
-			$connectionInfo 	= array("Database" => "FairSetup" );  // For local connections
+			$connectionInfo 	= array("Database" => "FairSetup_staging" );  // For local connections
 		}
 		else{
 			$serverName 		= "NIKITA-X200";
