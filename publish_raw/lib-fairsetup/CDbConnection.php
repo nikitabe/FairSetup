@@ -12,11 +12,11 @@ class CDBConnection
 
 		// local access on the production server
 
-		if( file_exists( "../../production.i_am" ) ){
+		if( file_exists( "../production.i_am" ) ){
 			$serverName 		= "WIN-8839QEJ1X7K";
 			$connectionInfo 	= array("Database" => "FairSetup" );  // For local connections
 		}
-		else if( file_exists( "../../staging.i_am" ) ){
+		else if( file_exists( "../staging.i_am" ) ){
 			$serverName 		= "WIN-8839QEJ1X7K";
 			$connectionInfo 	= array("Database" => "FairSetup_staging" );  // For local connections
 		}
