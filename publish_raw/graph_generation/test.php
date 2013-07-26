@@ -1,8 +1,13 @@
 <?php
 
-$d1 = 1320120000000;
 
-$d2 = 1323406800000;
-
- / 1000 / 60 / 60 / 24
+if( file_exists( "../production.i_am" ) ){
+	echo "production";
+}
+else if( file_exists( "../../staging.i_am" ) ){
+	echo "staging";
+}
+else{
+	echo "none";
+}
 ?>
