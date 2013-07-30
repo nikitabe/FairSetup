@@ -35,7 +35,8 @@ class CDBConnection
 	// When object is unloaded, make sure to clean up the connection
 	function __destruct(){
 		if( isset( $this->conn ) ){
-			sqlsrv_close( $this->conn );
+			if ($this->conn != false )
+				sqlsrv_close( $this->conn );
 			unset( $this->conn );
 		}	
 	}
