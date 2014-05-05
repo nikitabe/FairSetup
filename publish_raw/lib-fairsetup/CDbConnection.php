@@ -11,7 +11,6 @@ class CDBConnection
 		// $connectionInfo = array("Database" => "JoVETest", "UID" => "chris.macdonald", "PWD" => "Bacon27" );
 
 		// local access on the production server
-
 		if( file_exists( "../production.i_am" ) ){
 			$serverName 		= "WIN-8839QEJ1X7K";
 			$connectionInfo 	= array("Database" => "FairSetup" );  // For local connections
@@ -22,7 +21,7 @@ class CDBConnection
 		}
 		else{
 			$serverName 		= "X200-NIKITA";
-			$connectionInfo 	= array("Database" => "FairSetup_2" );  // For local connections
+			$connectionInfo 	= array("Database" => "FairSetup_0414" );  // For local connections
 		}
 		$this->conn = sqlsrv_connect( $serverName, $connectionInfo );
 		if( $this->conn === false )

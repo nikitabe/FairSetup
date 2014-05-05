@@ -6,20 +6,28 @@ include_once "get_hs_color_palette.php";
  define("TYPE_LINEAR",     "1");
  define("TYPE_STACKED",    "2");
  define("TYPE_IMPACT",     "3");
+ define("TYPE_IMPACT_HISTORY",     "4");
 
+ $lc = array_change_key_case($_REQUEST);
+ 
  $company_id = 12;
  $date_start = '1/1/1900';  // not used yet
  $cur_utc_stamp = time();
  $graph_type = TYPE_LINEAR;
+ $is_impact_history = false;
  
  $titles = array( TYPE_LINEAR => "Impact over Time",
 				  TYPE_STACKED => "Proportional Impact Over Time",	
-				  TYPE_IMPACT => "Accumulated Impact over Time" );
+				  TYPE_IMPACT => "Accumulated Impact over Time",
+				  TYPE_IMPACT_HISTORY => "How Impact was Calculated",
+				  );
  
- if( isset( $_REQUEST['type' ] ) ) $graph_type = (int)$_REQUEST['type'];
- if( isset( $_REQUEST['id' ] ) ) $company_id = (int)$_REQUEST['id'];
- if( isset( $_REQUEST['user_id' ] ) ) $user_id = (int)$_REQUEST['user_id'];
- if( isset( $_REQUEST['group_id' ] ) ) $group_id = (int)$_REQUEST['group_id'];
+ if( isset( $lc['type' ] ) ) $graph_type = (int)$lc['type'];
+ if( isset( $lc['id' ] ) ) $company_id = (int)$lc['id'];
+ if( isset( $lc['user_id' ] ) ) $user_id = (int)$lc['user_id'];
+ if( isset( $lc['group_id' ] ) ) $group_id = (int)$lc['group_id'];
+ if( isset( $lc['impact_history' ] ) && $lc['impact_history' ] == "1" ) $is_impact_history = true;
+ 
  $is_group = !isset( $user_id );
 ?>
   <!--Load the AJAX API-->
@@ -42,8 +50,22 @@ include_once "get_hs_color_palette.php";
 				
 				series.chart.legend.colorizeItem(series, series.visible);
 			}			
-		
+
 			var chart;
+
+			function init_chart( chart, options ){
+				$( "#waiting" ).slideUp("fast", function(){
+					chart = new Highcharts.Chart( options );
+					var c = chart.series.length;
+					<?php if( $is_group ){ ?>
+					if( c > 0 ){
+						c = Math.floor(Math.random()*c)
+						chart.series[c].onMouseOver();
+					}
+					<?php } ?>						
+				});
+			}
+
 			$(function () {
 			  var options = {
 					credits: false, 
@@ -234,68 +256,54 @@ include_once "get_hs_color_palette.php";
 					var data_url = "GetData.php?c_id=<?php echo $company_id; ?>";
 					<?php if( !$is_group ){ ?>
 							data_url = data_url + "&u_id=<?php echo $user_id;?>";
+						<?php if( $is_impact_history ){ ?>
+							data_url = data_url + "&is_impact_history=1";
+						<?php }?>
 					<?php } ?>
 					<?php if( isset( $group_id)  ){ ?>
 							data_url = data_url + "&group_id=<?php echo $group_id ?>";
 					<?php } ?>
-				
-					$.ajax({
-							  url: data_url,
-							  //url: "UpToLauren_test.json",
-							  dataType:"json",
-							  cache: false
-							  })
-							  .fail(function() { 
-								 $( "#waiting" ).slideUp("fast", function(){
-									$( "#error" ).slideDown( "slow" );
-									});
-								 
-							  })
-							  .done( 
-								function( responseText ){
-									$( "#waiting" ).slideUp("fast", function(){
-										options.series = eval( responseText );										
 
-											// Testing Code
-											if( false )
-												options.series = [{ 	name: 'Nikita', 
-																		pointStart: Date.UTC(2010, 0, 1),
-																		pointInterval: 3600 * 1000 * 24, // one hour
-																		data: [1, 2, 1, 3, 4, 5, 6, 9, 1, 2, 4] },
-																   { 	name: 'Rob', 
-																		pointStart: Date.UTC(2010, 0, 1),
-																		pointInterval: 3600 * 1000 * 24, // one hour
-																		data: [6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
-																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
-																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
-																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
-																			   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
-																			   5] }] ;
-										
-										chart = new Highcharts.Chart( options );
-										var c = chart.series.length;
-										if( c > 0 ){
-										<?php if( $is_group ){ ?>
-											c = Math.floor(Math.random()*c)
-											chart.series[c].onMouseOver();
-										<?php } ?>
-											
-/*
-	// OnFirstLoad - display tooltip at the current position
-	// This is not working right for now.
-											// Find the position
-											var l = chart.series[0].points.length;
-											var i;
-											for( i = 0; i < l && (chart.series[c].points[i].x / 1000 < <?php echo $cur_utc_stamp ?>); i++ );
-											if( i > 0 ){
-												var p = chart.series[c].points[i-1];
-												chart.tooltip.refresh( [p] ); //chart.series[0].points[10]
-											}
-*/											
-												
-										}
+										// Testing Code
+					if( false ){
+
+						/*options.series = [{ 	name: 'Impact', 
+												pointStart: Date.UTC(2010, 0, 1),
+												type: 'area',
+												pointInterval: 3600 * 1000 * 24, // one hour
+												data: [2, 1, 3, 4, 5, 6, 9, 1, 2, 4] },
+										   { 	name: 'Potential Impact', 
+												pointStart: Date.UTC(2010, 0, 1),
+												pointInterval: 3600 * 1000 * 24, // one hour
+												data: [1, 2, 1, 3, 4, 5, 6, 9, 1, 2, 4,
+													   6, 9, 1, 2, 4, 1, 2, 1, 3, 4, 
+													   5] }] ;*/
+						responseText = "[{'name':'Nikita Bernstein','pointStart':1341100800000,'pointInterval':86400000,'data':[0,0.004,0.014,0.03,0.055,0.089,0.134,0.194,0.272,0.371,0.496,0.652,0.846,1.085,1.38,1.742,2.183,2.719,3.368,4.15,5.088,6.209,7.539,9.11,10.951,13.093,15.566,18.395,21.602,25.201,29.201,33.602,38.395,43.566,49.093,54.951,61.11,67.539,74.209,81.088,88.15,95.368,102.719,110.183,117.742,125.38,133.085,140.846,148.652,156.496,164.371,172.272,180.194,188.134,196.089,204.055,212.03,220.014,228.004,236,244,252,260,268,276,284,292,300,11420.701,11433.201,11445.701,11458.201,11470.701,11483.201,11495.701,11508.201,11520.701,11533.201,11545.701,11558.201,11570.701,11583.201,11595.701,11608.201,11620.701,11633.201,11645.701,11658.201,11670.701,11683.201,11695.701,11708.201,11720.701,11733.201,11745.701,11758.201,11770.701,11783.201,11795.701,11808.201,11820.701,11833.201,11845.701,11858.201,11870.701,11883.201,11898.546],'zIndex':1}]";
+						options.series = eval( responseText );
+						
+						init_chart( chart, options );
+
+					}
+					else{
+						$.ajax({
+								  url: data_url,
+								  //url: "UpToLauren_test.json",
+								  dataType:"json",
+								  cache: false
+								  })
+								  .fail(function() { 
+									 $( "#waiting" ).slideUp("fast", function(){
+										$( "#error" ).slideDown( "slow" );
+										});
+									 
+								  })
+								  .done( 
+									function( responseText ){
+										options.series = eval( responseText );
+										init_chart( chart, options );
 									});
-								});
+								
+						}
 				});
 				
 			});
