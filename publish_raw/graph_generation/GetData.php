@@ -35,7 +35,7 @@ if( isset ( $date_to_show ) ){
 	
 	$sql = "select UserID , FullName, Impact_Net from GetCompanyBreakdown( ?, ? ) where (exclude = 0 OR exclude IS NULL)";
 	if( $group_id > 0 )
-		$sql .= " WHERE GroupID = " . $group_id; 
+		$sql .= " AND GroupID = " . $group_id; 
 	$sql .= " order by Impact_Net DESC";
 	$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $company_id, $date_to_show ) );
 	if( $stmt === false )
