@@ -33,7 +33,7 @@ if( isset ( $date_to_show ) ){
 	// Reset to now...  for now...
 	$date_to_show = date( "m/d/Y" );
 	
-	$sql = "select UserID , FullName, Impact_Net from GetCompanyBreakdown( ?, ? )";
+	$sql = "select UserID , FullName, Impact_Net from GetCompanyBreakdown( ?, ? ) where (exclude = 0 OR exclude IS NULL)";
 	if( $group_id > 0 )
 		$sql .= " WHERE GroupID = " . $group_id; 
 	$sql .= " order by Impact_Net DESC";
@@ -58,7 +58,7 @@ if( isset ( $date_to_show ) ){
 	echo $string;
 }
 elseif(isset ( $company_id) && !isset( $user_id ) ){
-	$sql = "select uc.UserId, NameInCompany from user_to_company uc left join user_to_group ug on uc.UserID = ug.UserID and uc.CompanyID = ug.CompanyID where uc.CompanyID = ?";
+	$sql = "select uc.UserId, NameInCompany from user_to_company uc left join user_to_group ug on uc.UserID = ug.UserID and uc.CompanyID = ug.CompanyID where (uc.exclude IS NULL or uc.exclude = 0) and uc.CompanyID = ?";
 	$params = Array( $company_id );
 
 	if( $group_id > 0 ){
