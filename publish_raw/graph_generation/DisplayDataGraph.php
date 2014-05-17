@@ -103,6 +103,7 @@ include_once "get_hs_color_palette.php";
 							color: '#ff0000',
 							width: 1,
 							id: 'plot-line-now',
+							zIndex:100,
 							label: {
 								text: 'Today',
 								textAlign: 'left'
@@ -151,12 +152,11 @@ include_once "get_hs_color_palette.php";
 					}],
 			
 					legend: {
-						<?php if( $is_group ){ ?>
 						verticalAlign: 'bottom',
-						borderWidth: 0
-						<?php }else{ ?>
-						enabled: false
-						<?php } ?>
+						borderWidth: 0,
+						itemStyle: {
+							fontWeight:"normal"
+						}
 					},
 			
 					tooltip: {
@@ -173,7 +173,9 @@ include_once "get_hs_color_palette.php";
 							});
 							
 							$.each( this.points, function( i, point ){
+								<?php if( $is_group ){ ?>
 								if( point.y > 0 ){
+								<?php } ?>
 									s += '<br/>';
 									
 									<?php if( $is_group ){ ?>
@@ -185,7 +187,9 @@ include_once "get_hs_color_palette.php";
 									s += point.series.name + ": ";
 									s += ' (' + Highcharts.numberFormat( point.y, 2 ) + ')';
 									s += '</span>';
+								<?php if( $is_group ){ ?>
 								}
+								<?php } ?>
 							});
 							return s;
 						}
@@ -222,7 +226,6 @@ include_once "get_hs_color_palette.php";
 										radius: 2
 									<?php }else{ ?>
 										radius: 4
-										,fillColor: "orange"
 									<?php } ?>
 									}
 								},
@@ -314,8 +317,12 @@ include_once "get_hs_color_palette.php";
   <body>
 
 	<body>
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+
+	<!--
 	<script src="libs/highcharts_v2/js/highcharts.js"></script>
 	<script src="libs/highcharts_v2/js/modules/exporting.js"></script>
+	-->
 	<!--
 	<script src="libs/highcharts_v3/js/highcharts.js"></script>
 	<script src="libs/highcharts_v3/js/modules/exporting.js"></script>
