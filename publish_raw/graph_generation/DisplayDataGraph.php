@@ -171,8 +171,12 @@ include_once "get_hs_color_palette.php";
 							$.each( this.points, function( i, point ){
 								tot += point.y;
 							});
+
+							var sortedPoints = this.points.sort(function(a, b){
+								return ((a.y < b.y) ? 1 : ((a.y > b.y) ? -1 : 0));
+							});
 							
-							$.each( this.points, function( i, point ){
+							$.each( sortedPoints, function( i, point ){
 								<?php if( $is_group ){ ?>
 								if( point.y > 0 ){
 								<?php } ?>
