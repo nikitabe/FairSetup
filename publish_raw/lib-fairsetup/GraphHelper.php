@@ -162,10 +162,12 @@ class CUser{
 			$values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH );
 			if( $values ){
 				// Round the time to the nearest day
-				$start_date = round( $values[1]->getTimestamp() / 3600 / 24, 0 ) * 3600 * 24 * 1000;
+				$start_date = strtotime( date( 'y-m-d', $values[1]->getTimestamp() ) ) * 1000;
+
 				$obj->pointStart = $start_date;
 				do{
 					array_push( $obj->data, round( $values[0], 3 ) );
+					// array_push( $obj->data, date( 'y-m-d', $values[1]->getTimestamp()) );
 				}
 				while( $values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH ) );
 			}
