@@ -321,13 +321,13 @@ include_once "get_hs_color_palette.php";
   <body>
 
 	<body>
-	<script src="http://code.highcharts.com/highcharts.js"></script>
 
-	<!--
 	<script src="libs/highcharts_v2/js/highcharts.js"></script>
 	<script src="libs/highcharts_v2/js/modules/exporting.js"></script>
-	-->
 	<!--
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+
+
 	<script src="libs/highcharts_v3/js/highcharts.js"></script>
 	<script src="libs/highcharts_v3/js/modules/exporting.js"></script>
 

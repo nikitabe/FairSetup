@@ -115,7 +115,9 @@ include_once "get_hs_color_palette.php";
 	<body>
 	<script src="libs/highcharts_v2/js/highcharts.js"></script>
 	<script src="libs/highcharts_v2/js/modules/exporting.js"></script>
-
+<!--	
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+-->
 	<div id="pie_container" style="min-width: 400px; height: 400px; margin: 0 auto;"></div>
 
   </body>
