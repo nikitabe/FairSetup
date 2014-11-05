@@ -21,7 +21,8 @@ class CDBConnection
 		}
 		else{
 			$serverName 		= "X200-NIKITA";
-			$connectionInfo 	= array("Database" => "FairSetup_20140613_1" );  // For local connections
+			//$connectionInfo 	= array("Database" => "FairSetup_2014_06_13_dev" );  // For local connections
+			$connectionInfo 	= array("Database" => "FairSetup_2014_10_25_prod" );  // For local connections
 		}
 		$this->conn = sqlsrv_connect( $serverName, $connectionInfo );
 		if( $this->conn === false )
