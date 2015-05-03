@@ -184,11 +184,13 @@ class CUser{
 				$obj_actual 	= new C_HSDisplaySeries( "Actual Impact", 						$start_date, 	1, 'rgba(0,200,0,1)', "area" );
 				$obj_l 			= new C_HSDisplaySeries( "Level", 								$start_date, 	3, 'rgba(100,100,100,0.7)' );		
 				$obj_lt 		= new C_HSDisplaySeries( "Throttled Level", 					$start_date, 	4, 'rgba(0,0,200,0.7)' );	
-				$obj_ltp 		= new C_HSDisplaySeries( "Throttled Level with Performance", 	$start_date,	5, 'rgba(200,0,0,0.4)' );	
+				$obj_lp 		= new C_HSDisplaySeries( "Level with Performance", 				$start_date,	5, 'rgba(200,200,0,0.4)' );	
+				$obj_ltp 		= new C_HSDisplaySeries( "Throttled Level with Performance", 	$start_date,	6, 'rgba(200,0,0,0.4)' );	
 				
 				$obj_actual->fillOpacity = 0.2;
 				$obj_l->visible = false;
 				$obj_lt->visible = false;
+				$obj_lp->visible = false;
 				$obj_ltp->visible = false;
 			 //$this->user_id;
 
@@ -199,6 +201,7 @@ class CUser{
 
 					array_push( $obj_l->data, round( $values[4], 3 ) );
 					array_push( $obj_lt->data, round( $values[4] * $values[5], 3 ) );
+					array_push( $obj_lp->data, round( $values[4] * $values[6], 3 ) );
 					
 					$v = round( $values[4] * $values[5] * $values[6], 3 );
 					array_push( $obj_ltp->data, $v );
@@ -208,6 +211,7 @@ class CUser{
 
 				array_push( $obj_ret, $obj_l );
 				array_push( $obj_ret, $obj_lt );
+				array_push( $obj_ret, $obj_lp );
 				array_push( $obj_ret, $obj_ltp );
 				array_push( $obj_ret, $obj_potential );
 				array_push( $obj_ret, $obj_actual );
