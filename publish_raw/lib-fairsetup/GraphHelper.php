@@ -184,7 +184,7 @@ class CUser{
 				$obj_actual 	= new C_HSDisplaySeries( "Actual Impact", 						$start_date, 	1, 'rgba(0,200,0,1)', "area" );
 				$obj_l 			= new C_HSDisplaySeries( "Level", 								$start_date, 	3, 'rgba(100,100,100,0.7)' );		
 				$obj_lt 		= new C_HSDisplaySeries( "Throttled Level", 					$start_date, 	4, 'rgba(0,0,200,0.7)' );	
-				$obj_lp 		= new C_HSDisplaySeries( "Level with Performance", 				$start_date,	5, 'rgba(200,200,0,0.4)' );	
+				$obj_lp 		= new C_HSDisplaySeries( "Level with Performance", 				$start_date,	5, 'rgba(255,000,0,0.7)' );	
 				$obj_ltp 		= new C_HSDisplaySeries( "Throttled Level with Performance", 	$start_date,	6, 'rgba(200,0,0,0.4)' );	
 				
 				$obj_actual->fillOpacity = 0.2;
