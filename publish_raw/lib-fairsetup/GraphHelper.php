@@ -12,6 +12,7 @@ class CObject{}
 class CNameValue{}
 class CCol{}
 
+$every_x = 1;
 
 class CGraphHelper{
 	public $users;
@@ -52,6 +53,8 @@ class CGraphHelper{
 
 	function getStateForHighcharts()
 	{
+        global $every_x;
+        $every_x = 5;
 		$out = array();
 
 		foreach( $this->users as $user ){
@@ -62,6 +65,9 @@ class CGraphHelper{
 
 	function getHistoryForHighcharts()
 	{
+        global $every_x;
+        $every_x = 5;
+
 		$out = array();
 
 		foreach( $this->users as $user ){
@@ -75,11 +81,13 @@ class CGraphHelper{
 class C_HSDisplaySeries{
 	function __construct( $name, $start_date = 0, $zIndex = 1, $color = "gray", $type = "line")
 	{
+        global $every_x;
+        
 		$this->name = $name;
 		$this->color = $color;
 		$this->zIndex = $zIndex;
 		$this->pointStart = '0'; // so that it shows before data
-		$this->pointInterval = 3600 * 1000 * 24;
+		$this->pointInterval = 3600 * 1000 * 24 * $every_x;
 		$this->data = array();
 		$this->type = $type;
 		$this->pointStart = $start_date;
@@ -137,8 +145,11 @@ class CUser{
 	{
 		// NOT READY TO YET
 		global $db_conn;
+        global $every_x;
+
 		//$sql = "select EventLevel, EventTime from user_level_cache where UserID = ? and CompanyID = ? ORDER BY EventTime ASC";
-		$sql = "select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance from user_impact_cache where UserID = ? and CompanyID = ? ORDER BY EventTime ASC";
+		//$sql = "select * from (select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ORDER BY EventTime ASC) t where t.rownum %10 = 0 order by t.rownum";
+		$sql = "select * from (select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ) t where t.rownum % " . $every_x . " = 0 order by t.rownum";
 		$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $this->user_id, $this->company_id ) );
 		
 		if( $stmt === false )
@@ -155,7 +166,7 @@ class CUser{
 			else
 				$obj->name = $this->name;
 			$obj->pointStart = '0'; // so that it shows before data
-			$obj->pointInterval = 3600 * 1000 * 24;
+			$obj->pointInterval = 3600 * 1000 * 24 * $every_x;
 			$obj->data = array();
 			$obj->zIndex = 1; //$this->user_id;
 
