@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<?php
+ $lc = array_change_key_case($_REQUEST);
+$company_id = "";
+ if( isset ($lc['c_id'])) $company_id 	= (int)$lc['c_id'];	
+
+ if( !is_numeric( $company_id ) || $company_id < 0 ){
+	echo "No company with that id";
+	exit;
+}
+
+?>
 <style>
 
 </style>
@@ -57,7 +68,7 @@ var svg = d3.select("body").append("svg")
 .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("http://localhost/fs/publish_raw/graph_generation/GetData.php?c_id=10038", function(error, data) {
+d3.json("http://localhost/fs/publish_raw/graph_generation/GetData.php?c_id=<?php echo $company_id?>", function(error, data) {
   if (error) throw error;
   var dLength = data.length;
   var names = [];
