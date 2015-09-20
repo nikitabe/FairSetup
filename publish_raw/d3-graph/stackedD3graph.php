@@ -68,7 +68,7 @@ var svg = d3.select("body").append("svg")
 .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("http://localhost/fs/publish_raw/graph_generation/GetData.php?c_id=<?php echo $company_id?>", function(error, data) {
+d3.json("../graph_generation/GetData.php?c_id=<?php echo $company_id?>", function(error, data) {
   if (error) throw error;
   var dLength = data.length;
   var names = [];
