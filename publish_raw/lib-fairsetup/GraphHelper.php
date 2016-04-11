@@ -148,7 +148,7 @@ class CUser{
         global $every_x;
 
 		//$sql = "select EventLevel, EventTime from user_level_cache where UserID = ? and CompanyID = ? ORDER BY EventTime ASC";
-		//$sql = "select * from (select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ORDER BY EventTime ASC) t where t.rownum %10 = 0 order by t.rownum";
+		//$sql = "select * from (select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ORDER BY EventTime ASC) t where t.rownum %10 = 0 order by t.rownum" ;
 		$sql = "select * from (select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, ISNULL( Performance, 1 ) AS Performance, PerformanceNet, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ) t where cast( EventTime AS int ) % " . $every_x . " = 0 order by t.rownum";
 		//$sql = "select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ) t where cast( EventTime AS int )";
 		$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $this->user_id, $this->company_id ) );
