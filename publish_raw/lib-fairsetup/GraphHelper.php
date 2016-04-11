@@ -149,10 +149,9 @@ class CUser{
 
 		//$sql = "select EventLevel, EventTime from user_level_cache where UserID = ? and CompanyID = ? ORDER BY EventTime ASC";
 		//$sql = "select * from (select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ORDER BY EventTime ASC) t where t.rownum %10 = 0 order by t.rownum";
-		$sql = "select * from (select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ) t where cast( EventTime AS int ) % " . $every_x . " = 0 order by t.rownum";
+		$sql = "select * from (select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, ISNULL( Performance, 1 ) AS Performance, PerformanceNet, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ) t where cast( EventTime AS int ) % " . $every_x . " = 0 order by t.rownum";
 		//$sql = "select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ) t where cast( EventTime AS int )";
 		$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $this->user_id, $this->company_id ) );
-		
 		if( $stmt === false )
 		{
 			 echo "Error in statement preparation/execution.\n";
@@ -161,6 +160,7 @@ class CUser{
 
 		$obj_ret = array();
 		if( $net_value ){
+
 			$obj = new CObject();
 			if( $individual_user )
 				$obj->name = "Net Impact";
@@ -195,8 +195,11 @@ class CUser{
 				$obj_potential 	= new C_HSDisplaySeries( "Impact Potential", 					$start_date, 	6, 'rgba(50,50,50,1)');			
 				$obj_actual 	= new C_HSDisplaySeries( "Actual Impact", 						$start_date, 	1, 'rgba(0,200,0,1)', "area" );
 				$obj_l 			= new C_HSDisplaySeries( "Level", 								$start_date, 	3, 'rgba(100,100,100,0.7)' );		
-				$obj_lt 		= new C_HSDisplaySeries( "Throttled Level", 					$start_date, 	4, 'rgba(0,255,000,0.7)' );	
-				$obj_lp 		= new C_HSDisplaySeries( "Level with Performance", 				$start_date,	5, 'rgba(255,000,0,0.7)' );	
+				$obj_lt 		= new C_HSDisplaySeries( "Level with Throttle", 				$start_date, 	4, 'rgba(100,100,255,0.7)' );	
+				$obj_t  		= new C_HSDisplaySeries( "Throttle", 							$start_date, 	4, 'rgba(0,0,255,0.7)' );	
+				$obj_lp 		= new C_HSDisplaySeries( "Level with Performance", 				$start_date,	5, 'rgba(255,100,100,0.7)' );	
+				$obj_p  		= new C_HSDisplaySeries( "Performance", 						$start_date,	5, 'rgba(255,0,0,0.7)' );	
+				$obj_pn 		= new C_HSDisplaySeries( "Performance Net", 					$start_date,	1, 'rgba(100,50,50,0.4)' );	
 				$obj_ltp 		= new C_HSDisplaySeries( "Throttled Level with Performance", 	$start_date,	6, 'rgba(200,0,0,0.4)' );	
 				
 				$obj_actual->fillOpacity = 0.2;
@@ -204,6 +207,9 @@ class CUser{
 				$obj_lt->visible = false;
 				$obj_lp->visible = false;
 				$obj_ltp->visible = false;
+				$obj_pn->visible = false;
+				$obj_p->visible = false;
+				$obj_t->visible = false;
 			 //$this->user_id;
 
 				// Round the time to the nearest day
@@ -213,7 +219,12 @@ class CUser{
 
 					array_push( $obj_l->data, round( $values[4], 3 ) );
 					array_push( $obj_lt->data, round( $values[4] * $values[5], 3 ) );
+					
+					array_push( $obj_t->data, round( $values[5], 3 ) );
+
 					array_push( $obj_lp->data, round( $values[4] * $values[6], 3 ) );
+					array_push( $obj_p->data,  round( $values[6], 3 ) );
+					array_push( $obj_pn->data, round( $values[7], 3 ) );
 					
 					$v = round( $values[4] * $values[5] * $values[6], 3 );
 					array_push( $obj_ltp->data, $v );
@@ -221,6 +232,9 @@ class CUser{
 				}
 				while( $values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH ) );
 
+				array_push( $obj_ret, $obj_t );
+				array_push( $obj_ret, $obj_p );
+				array_push( $obj_ret, $obj_pn );
 				array_push( $obj_ret, $obj_l );
 				array_push( $obj_ret, $obj_lt );
 				array_push( $obj_ret, $obj_lp );
