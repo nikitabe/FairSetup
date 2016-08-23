@@ -91,6 +91,7 @@ class C_HSDisplaySeries{
 		$this->data = array();
 		$this->type = $type;
 		$this->pointStart = $start_date;
+		$this->step = 'center';
 	}
 }
 
