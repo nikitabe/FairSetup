@@ -22,7 +22,7 @@ class CDBConnection
 		else{
 			$serverName 		= "DESKTOP-L0FP22K";
 			//$connectionInfo 	= array("Database" => "FairSetup_2014_06_13_dev" );  // For local connections
-			$connectionInfo 	= array("Database" => "FairSetup20160410", "UID" => "FairSetup_App", "PWD" => "jomicat" );  // For local connections
+			$connectionInfo 	= array("Database" => "FairSetup20160823", "UID" => "FairSetup_App", "PWD" => "jomicat" );  // For local connections
 		}
 		$this->conn = sqlsrv_connect( $serverName, $connectionInfo );
 		if( $this->conn === false )
