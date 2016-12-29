@@ -14,7 +14,7 @@ include_once "get_hs_color_palette.php";
  $date_start = '1/1/1900';  // not used yet
  $cur_utc_stamp = time();
  $graph_type = TYPE_LINEAR;
- $is_impact_history = false;
+ $display_type = 0;
  
  $titles = array( TYPE_LINEAR => "Impact over Time",
 				  TYPE_STACKED => "Proportional Impact Over Time",	
@@ -26,7 +26,7 @@ include_once "get_hs_color_palette.php";
  if( isset( $lc['id' ] ) ) $company_id = (int)$lc['id'];
  if( isset( $lc['user_id' ] ) ) $user_id = (int)$lc['user_id'];
  if( isset( $lc['group_id' ] ) ) $group_id = (int)$lc['group_id'];
- if( isset( $lc['impact_history' ] ) && $lc['impact_history' ] == "1" ) $is_impact_history = true;
+ if( isset( $lc['display_type' ] ) ) $display_type = (int)$lc['display_type'];
  
  $is_group = !isset( $user_id );
 ?>
@@ -34,6 +34,15 @@ include_once "get_hs_color_palette.php";
 
 		<script type="text/javascript" src="jquery-1.9.0.min.js"></script>
 		<script type="text/javascript">
+
+			// Graph Display Types
+			const TYPE_NONE 		= 0;
+			const TYPE_USER_NET 	= 1;
+			const TYPE_USER_HISTORY = 2;
+			const TYPE_GROUP 		= 3;
+
+			var display_type = TYPE_NONE;
+
 			colorizeSeries = function( series, color )
 			{
 				series.color = color;
@@ -260,15 +269,22 @@ include_once "get_hs_color_palette.php";
 				};				
 				
 				$(document).ready(function() {
+					// base URL
 					var data_url = "GetData.php?c_id=<?php echo $company_id; ?>";
+
+					// Single User
 					<?php if( !$is_group ){ ?>
+							display_type = TYPE_USER_NET;
 							data_url = data_url + "&u_id=<?php echo $user_id;?>";
-						<?php if( $is_impact_history ){ ?>
-							data_url = data_url + "&is_impact_history=1";
-						<?php }?>
+						// User history
+							display_type = TYPE_USER_HISTORY;
+							data_url = data_url + "&display_type=<?php echo $display_type;?>";
 					<?php } ?>
+
+					// Group-related processing
 					<?php if( isset( $group_id)  ){ ?>
-							data_url = data_url + "&group_id=<?php echo $group_id ?>";
+						display_type = TYPE_GROUP;
+						data_url = data_url + "&group_id=<?php echo $group_id ?>";
 					<?php } ?>
 
 										// Testing Code
@@ -306,10 +322,77 @@ include_once "get_hs_color_palette.php";
 								  })
 								  .done( 
 									function( responseText ){
-										options.series = eval( responseText );
+										// Get response text
+										received_object = eval( responseText )[0];
+
+										// Prepare the data for output
+										// d_obj - the incoming object to process
+										//   name, start_date, num_days, data ( [day_index, value1, value2, etc.] )
+										// field_index - index of the value in d_obj.data.  0 is day_index 
+										function prepareData( d_obj, field_index )
+										{
+											output_series = Array
+																.apply( null, Array(d_obj.num_days))
+																.map(Number.prototype.valueOf,0);
+											j = 0;
+											last_value = 0;
+											for( i = 0; i < d_obj.data.length; i++){
+
+												// if this series is continuous
+												if( d_obj.field_names[field_index][4] == 1){
+													while( j < d_obj.data[i][0] ){
+														output_series[j] = last_value;
+														j++;
+													}
+												}
+												else{
+													j = d_obj.data[i][0];
+												}
+
+												// set the actual value
+												// +2 because the first field is date offset, date
+												last_value = d_obj.data[i][field_index + 2];
+												output_series[j] = last_value;
+
+											}
+											return output_series;
+										}
+
+										// Sets up a single series for user for field_index
+										function SetUpSeries( user_object, field_index )
+										{
+											var ret_obj = {}
+											ret_obj.name = user_object.field_names[field_index][0];
+											ret_obj.pointStart = user_object.start_date;
+											ret_obj.pointInterval =  3600 * 1000 * 24;
+
+											ret_obj.data = prepareData( user_object, field_index ); 
+ 											ret_obj.zIndex 	= user_object.field_names[field_index][1];
+ 											ret_obj.color 	= user_object.field_names[field_index][2];
+ 											ret_obj.type 	= user_object.field_names[field_index][3];
+ 											ret_obj.step 	= 'center'
+ 											ret_obj.visible	= (user_object.field_names[field_index][5] == 1);
+ 											console.log( ret_obj.visible );
+ 											return ret_obj;
+										}
+
+										if( display_type == TYPE_USER_NET || 
+											display_type == TYPE_USER_HISTORY ){											
+											for( ind_name = 0; ind_name < received_object.field_names.length; ind_name++ ){
+												options.series.push( SetUpSeries( received_object, ind_name ) );
+											}
+										}
+
+										else if( display_type == TYPE_GROUP )
+										{
+											console.log( 'not implemented');
+										}
+
+										else console.log( 'you be trippin');
+
+
 										init_chart( chart, options );
 									});
-								
 						}
 				});
 				

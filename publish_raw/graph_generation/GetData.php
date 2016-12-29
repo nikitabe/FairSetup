@@ -4,14 +4,12 @@ $company_id = -1;
 
 $lc = array_change_key_case($_GET);
 $group_id = -1;
-$is_impact_history = false;
 $pie_contents = "Net";
 
 if( isset ($lc['c_id'])) $company_id 	= (int)$lc['c_id'];	
 if( isset ($lc['date'])) $date_to_show 	= ($lc['date']);
 if( isset ($lc['u_id'])) $user_id 		= (int)($lc['u_id']);
 if( isset ($lc['group_id'])) $group_id 	= (int)($lc['group_id']);
-if( isset ($lc['is_impact_history']) && $lc['is_impact_history'] = "1" ) $is_impact_history = true;
 if( isset ($lc['pie_contents'])) $pie_contents 	= $lc['pie_contents'];	
 
 if( !is_numeric( $company_id ) || $company_id < 0 ){
@@ -26,6 +24,9 @@ if( isset( $user_id ) && (!is_numeric( $user_id ) || $user_id < 0 ) ){
 
 include_once "../lib-fairsetup/GraphHelper.php";
 include_once '../lib-fairsetup/DBConnection.php';
+
+$display_type = DISPLAY_NET_VALUE;
+if( isset ($lc['display_type']) ) $display_type = (int)($lc['display_type']);
 
 $graph_data = new CGraphHelper();
 
@@ -100,11 +101,8 @@ elseif(isset ( $company_id) && !isset( $user_id ) ){
 // SINGLE USER
 elseif( isset ( $company_id) && isset( $user_id ) ){
 	$user = new CUser( $user_id, $company_id );
-
-	if( !$is_impact_history )
-		$data = $user->getHistoryStateHighchart( true, true );
-	else
-		$data = $user->getHistoryStateHighchart( true, false );
+	
+	$data = $user->getHistoryStateHighchart( true, $display_type );		
 	
 	$string = json_encode( $data );
 

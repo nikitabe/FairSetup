@@ -14,6 +14,10 @@ class CCol{}
 
 $every_x = 1;
 
+define("DISPLAY_NET_VALUE",  "0");
+define("DISPLAY_IMPACT",     "1");
+define("DISPLAY_BEHAVIOR",   "2");
+
 class CGraphHelper{
 	public $users;
 	
@@ -136,21 +140,114 @@ class CUser{
 	}
 
 /*
+
 [{ 	name: 'Nikita', 
 															pointStart: Date.UTC(2010, 0, 1),
 															pointInterval: 3600 * 1000 * 24, // one hour
 															data: [1, 2, 1, 3, 4, 5, 6, 9, 1, 2, 4] },
 */
 
-	function getHistoryStateHighchart( $individual_user = false, $net_value = true )
+	function getEventHistory()
+	{
+	}
+
+	// Returns the first day along with the number of days
+	function GetDateInfo()
+	{
+		global $db_conn;
+
+		$sql = "select MIN( EventDate ), DateDiff( d, MIN( EventDate ), MAX( EventDate ) ) 
+					from user_events
+						 where ((PLevelID IS NOT NULL AND PLevelID > -1) OR (money_transfer IS NOT NULL)) and UserID = ? and CompanyID = ?  
+					";
+
+		$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $this->user_id, $this->company_id ) );
+		if( $stmt === false )
+		{
+			 echo "Error in statement preparation/execution.\n";
+			 die( print_r( sqlsrv_errors(), true));
+		}
+
+		$values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH );
+		sqlsrv_free_stmt( $stmt );	
+		$ret_obj = new stdClass();
+		$ret_obj->start_date = date( 'Y-m-d', $values[0]->getTimestamp() );
+		$ret_obj->num_days = $values[1];
+		return $ret_obj;
+	}
+
+	// individual_user - do not place users's name
+	function getHistoryStateHighchart( $individual_user = false, $display_type = NET_VALUE )
 	{
 		// NOT READY TO YET
 		global $db_conn;
         global $every_x;
 
+
 		//$sql = "select EventLevel, EventTime from user_level_cache where UserID = ? and CompanyID = ? ORDER BY EventTime ASC";
 		//$sql = "select * from (select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ORDER BY EventTime ASC) t where t.rownum %10 = 0 order by t.rownum" ;
-		$sql = "select * from (select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, ISNULL( Performance, 1 ) AS Performance, PerformanceNet, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ) t where cast( EventTime AS int ) % " . $every_x . " = 0 order by t.rownum";
+
+		$obj_ret = array();
+		$date_info = $this->GetDateInfo();	
+
+		$fields = array();
+
+		$fields = 
+			[
+			 "ISNULL( Impact_Net_Labor, 0) + ISNULL(Impact_Net_Capital,0)",
+			 "ISNULL( Impact_Net_Labor, 0)",
+			 "ISNULL( Impact_Net_Capital, 0)",
+			 "Level",
+			 "Level_Potential",
+			 "Impact_flat",
+			 "Impact_flat * ISNULL( RiskMultiplier, 1) as Impact_wRisk",
+			 "TimeSpent",
+			 "TimeSpent / 40",
+			 "PLevel_Backward"];
+
+		$field_names = 
+			[
+			// Name 					z-index  color 					   type     continuous	 visibility
+			 ["Net Impact"					,1,	"rgba(0,0,0,1)			", "line"	, 1			, 0 ], // 0
+			 ["Net Impact (labor only)"		,2,	"rgba(0,200,0,1)		", "line"	, 1			, 0 ], // 1
+			 ["Net Impact (capital only)"	,3,	"rgba(0,0,200,1)		", "line"	, 1			, 0 ], // 2
+			 ["Level"						,7,	"rgba(100,100,100,0.7)	", "line" 	, 1			, 0 ], // 3
+			 ["Potential Level"				,4,	"rgba(100,100,100,0.7)	", "area"	, 1			, 0 ], // 4
+			 ["Impact (flat)"				,5,	"rgba(0,150,0,0.7)		", "area"	, 0			, 0 ], // 5
+			 ["Impact (risk-adjusted)"		,6,	"rgba(0,200,0,0.7)		", "area"	, 0			, 0 ], // 6
+			 ["Time Spent"					,8,	"rgba(150,150,150,0.7)	", "area"	, 0			, 0 ], // 7
+			 ["Throttle"					,8,	"rgba(150,150,150,0.7)	", "line"	, 1			, 0 ], // 8
+			 ["Performance"					,9,	"rgba(0,0,0,0.7)		", "line"	, 1			, 0 ]  // 9
+			 ];
+
+		if( $display_type == DISPLAY_NET_VALUE ){
+			$field_names[0][5] = 1;
+			$field_names[1][5] = 1;
+			$field_names[2][5] = 1;
+		}
+		else if( $display_type == DISPLAY_IMPACT ){
+			$field_names[3][5] = 1;
+			$field_names[4][5] = 1;			
+			$field_names[5][5] = 1;			
+			$field_names[6][5] = 1;			
+		}
+		else if( $display_type == DISPLAY_BEHAVIOR){
+			$field_names[8][5] = 1;
+			$field_names[9][5] = 1;			
+		}
+
+		// Get User Net Value
+
+		$sql = "select 
+			DateDiff( d, '" . $date_info->start_date ."', c.EventDate ),
+			c.EventDate,
+			[FIELDS]
+						from user_events_cache c inner join user_events e on c.EventID = e.EventID
+						where (PLevel_Backward IS NOT NULL OR e.money_transfer IS NOT NULL) and c.UserID = ? and c.CompanyID = ?  
+						order by c.EventDate ASC";
+
+		$sql = str_replace( "[FIELDS]", implode( ",", $fields ), $sql );
+
 		//$sql = "select Impact_Net, EventTime, Impact_Potential, Impact_Actual, Level, Throttle, Performance, ROW_NUMBER() over (order by EventTime ASC) as rownum from user_impact_cache where UserID = ? and CompanyID = ? ) t where cast( EventTime AS int )";
 		$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $this->user_id, $this->company_id ) );
 		if( $stmt === false )
@@ -159,96 +256,32 @@ class CUser{
 			 die( print_r( sqlsrv_errors(), true));
 		}
 
-		$obj_ret = array();
-		if( $net_value ){
 
-			$obj = new CObject();
-			if( $individual_user )
-				$obj->name = "Net Impact";
-			else
-				$obj->name = $this->name;
-			$obj->pointStart = '0'; // so that it shows before data
-			$obj->pointInterval = 3600 * 1000 * 24 * $every_x;
-			$obj->data = array();
-			$obj->zIndex = 1; //$this->user_id;
+		$obj = new CObject();
+		$obj->name = $this->name;
 
-			$values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH );
-			if( $values ){
-				// Round the time to the nearest day
-				$start_date = strtotime( date( 'y-m-d', $values[1]->getTimestamp() ) ) * 1000;
+		$obj->start_date = strtotime( $date_info->start_date ) * 1000; // so that it shows before data
 
-				$obj->pointStart = $start_date;
-				do{
-					array_push( $obj->data, round( $values[0], 3 ) );
-					// array_push( $obj->data, date( 'y-m-d', $values[1]->getTimestamp()) );
-				}
-				while( $values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH ) );
-			}
-			array_push( $obj_ret, $obj );
-		}
-		else{
+		$obj->num_days = $date_info->num_days;
+		$obj->data = array();
+		$obj->field_names = $field_names;
 
-			$values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH );
+		$values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH );
 
-			if( $values ){
-				$start_date = round( $values[1]->getTimestamp() / 3600 / 24, 0 ) * 3600 * 24 * 1000;
+		while( $values ){
+
+			$val_array = array();
 			
-				$obj_potential 	= new C_HSDisplaySeries( "Impact Potential", 					$start_date, 	6, 'rgba(50,50,50,1)');			
-				$obj_actual 	= new C_HSDisplaySeries( "Actual Impact", 						$start_date, 	1, 'rgba(0,200,0,1)', "area" );
-				$obj_l 			= new C_HSDisplaySeries( "Level", 								$start_date, 	3, 'rgba(100,100,100,0.7)' );		
-				$obj_lt 		= new C_HSDisplaySeries( "Level with Throttle", 				$start_date, 	4, 'rgba(100,100,255,0.7)' );	
-				$obj_t  		= new C_HSDisplaySeries( "Throttle", 							$start_date, 	4, 'rgba(0,0,255,0.7)' );	
-				$obj_lp 		= new C_HSDisplaySeries( "Level with Performance", 				$start_date,	5, 'rgba(255,100,100,0.7)' );	
-				$obj_p  		= new C_HSDisplaySeries( "Performance", 						$start_date,	5, 'rgba(255,0,0,0.7)' );	
-				$obj_pn 		= new C_HSDisplaySeries( "Performance Net", 					$start_date,	1, 'rgba(100,50,50,0.4)' );	
-				$obj_ltp 		= new C_HSDisplaySeries( "Throttled Level with Performance", 	$start_date,	6, 'rgba(200,0,0,0.4)' );	
-				
-				$obj_actual->fillOpacity = 0.2;
-				$obj_l->visible = false;
-				$obj_lt->visible = false;
-				$obj_lp->visible = false;
-				$obj_ltp->visible = false;
-				$obj_pn->visible = false;
-				$obj_p->visible = false;
-				$obj_t->visible = false;
-			 //$this->user_id;
-
-				// Round the time to the nearest day
-				do{
-					array_push( $obj_potential->data, round( $values[2], 3 ) );
-					array_push( $obj_actual->data, round( $values[3], 3 ) );
-
-					array_push( $obj_l->data, round( $values[4], 3 ) );
-					array_push( $obj_lt->data, round( $values[4] * $values[5], 3 ) );
-					
-					array_push( $obj_t->data, round( $values[5], 3 ) );
-
-					array_push( $obj_lp->data, round( $values[4] * $values[6], 3 ) );
-					array_push( $obj_p->data,  round( $values[6], 3 ) );
-					array_push( $obj_pn->data, round( $values[7], 3 ) );
-					
-					$v = round( $values[4] * $values[5] * $values[6], 3 );
-					array_push( $obj_ltp->data, $v );
-
-				}
-				while( $values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH ) );
-
-				array_push( $obj_ret, $obj_t );
-				array_push( $obj_ret, $obj_p );
-				array_push( $obj_ret, $obj_pn );
-				array_push( $obj_ret, $obj_l );
-				array_push( $obj_ret, $obj_lt );
-				array_push( $obj_ret, $obj_lp );
-				array_push( $obj_ret, $obj_ltp );
-				array_push( $obj_ret, $obj_potential );
-				array_push( $obj_ret, $obj_actual );
-
+			for( $i=0; $i < count( $fields ) + 2; $i++ ){
+				array_push( $val_array, $values[$i] );
 			}
 			
+			array_push( $obj->data, $val_array );
+			$values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH );
 		}
-		
-
+		array_push( $obj_ret, $obj );
 		sqlsrv_free_stmt( $stmt );	
+
 		return $obj_ret;
 	}
 }
