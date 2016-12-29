@@ -193,7 +193,7 @@ class CUser{
 		$fields = array();
 
 		$fields = 
-			[
+			array(
 			 "ISNULL( Impact_Net_Labor, 0) + ISNULL(Impact_Net_Capital,0)",
 			 "ISNULL( Impact_Net_Labor, 0)",
 			 "ISNULL( Impact_Net_Capital, 0)",
@@ -203,22 +203,22 @@ class CUser{
 			 "Impact_flat * ISNULL( RiskMultiplier, 1) as Impact_wRisk",
 			 "TimeSpent",
 			 "TimeSpent / 40",
-			 "PLevel_Backward"];
+			 "PLevel_Backward");
 
 		$field_names = 
-			[
+			array(
 			// Name 					z-index  color 					   type     continuous	 visibility
-			 ["Net Impact"					,1,	"rgba(0,0,0,1)			", "line"	, 1			, 0 ], // 0
-			 ["Net Impact (labor only)"		,2,	"rgba(0,200,0,1)		", "line"	, 1			, 0 ], // 1
-			 ["Net Impact (capital only)"	,3,	"rgba(0,0,200,1)		", "line"	, 1			, 0 ], // 2
-			 ["Level"						,7,	"rgba(100,100,100,0.7)	", "line" 	, 1			, 0 ], // 3
-			 ["Potential Level"				,4,	"rgba(100,100,100,0.7)	", "area"	, 1			, 0 ], // 4
-			 ["Impact (flat)"				,5,	"rgba(0,150,0,0.7)		", "area"	, 0			, 0 ], // 5
-			 ["Impact (risk-adjusted)"		,6,	"rgba(0,200,0,0.7)		", "area"	, 0			, 0 ], // 6
-			 ["Time Spent"					,8,	"rgba(150,150,150,0.7)	", "area"	, 0			, 0 ], // 7
-			 ["Throttle"					,8,	"rgba(150,150,150,0.7)	", "line"	, 1			, 0 ], // 8
-			 ["Performance"					,9,	"rgba(0,0,0,0.7)		", "line"	, 1			, 0 ]  // 9
-			 ];
+			 array("Net Impact"					,1,	"rgba(0,0,0,1)			", "line"	, 1			, 0 ), // 0
+			 array("Net Impact (labor only)"		,2,	"rgba(0,200,0,1)		", "line"	, 1			, 0 ), // 1
+			 array("Net Impact (capital only)"	,3,	"rgba(0,0,200,1)		", "line"	, 1			, 0 ), // 2
+			 array("Level"						,7,	"rgba(100,100,100,0.7)	", "line" 	, 1			, 0 ), // 3
+			 array("Potential Level"				,4,	"rgba(100,100,100,0.7)	", "area"	, 1			, 0 ), // 4
+			 array("Impact (flat)"				,5,	"rgba(0,150,0,0.7)		", "area"	, 0			, 0 ), // 5
+			 array("Impact (risk-adjusted)"		,6,	"rgba(0,200,0,0.7)		", "area"	, 0			, 0 ), // 6
+			 array("Time Spent"					,8,	"rgba(150,150,150,0.7)	", "area"	, 0			, 0 ), // 7
+			 array("Throttle"					,8,	"rgba(150,150,150,0.7)	", "line"	, 1			, 0 ), // 8
+			 array("Performance"					,9,	"rgba(0,0,0,0.7)		", "line"	, 1			, 0 )  // 9
+			 );
 
 		if( $display_type == DISPLAY_NET_VALUE ){
 			$field_names[0][5] = 1;
