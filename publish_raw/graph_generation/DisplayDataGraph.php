@@ -331,8 +331,9 @@ include_once "get_hs_color_palette.php";
 										// field_index - index of the value in d_obj.data.  0 is day_index 
 										function prepareData( d_obj, field_index )
 										{
+											lead_space = 5;
 											output_series = Array
-																.apply( null, Array(d_obj.num_days))
+																.apply( null, Array(d_obj.num_days + lead_space ))
 																.map(Number.prototype.valueOf,0);
 											j = 0;
 											last_value = 0;
@@ -352,7 +353,7 @@ include_once "get_hs_color_palette.php";
 												// set the actual value
 												// +2 because the first field is date offset, date
 												last_value = d_obj.data[i][field_index + 2];
-												output_series[j] = last_value;
+												output_series[j + lead_space] = last_value;
 
 											}
 											return output_series;

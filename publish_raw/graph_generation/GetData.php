@@ -37,11 +37,13 @@ if( isset ( $date_to_show ) ){
 	$date_to_show = date( "m/d/Y" );
 
 	$ind = 2; $sort_order = "";
-	if( $pie_contents == "Net" ) 	{	$ind = 2; $sort_order = " ORDER BY Impact_Net DESC";} 	 
-	if( $pie_contents == "Labor" ) 	{	$ind = 3; $sort_order = " ORDER BY Impact_Net_Labor DESC";} 	 
-	if( $pie_contents == "Capital" ){	$ind = 4; $sort_order = " ORDER BY Impact_Net_Capital DESC";} 	 
+	if( $pie_contents == "Net" ) 		{	$ind = 2; $sort_order = " ORDER BY Impact_Net DESC";} 	 
+	if( $pie_contents == "Capital" )	{	$ind = 3; $sort_order = " ORDER BY Impact_Net_Capital DESC";} 	 
+	if( $pie_contents == "Labor" ) 		{	$ind = 4; $sort_order = " ORDER BY Impact_Net_Labor DESC";} 	 
+	if( $pie_contents == "LaborNoRisk" ){	$ind = 5; $sort_order = " ORDER BY Impact_Net_Labor_NoRisk DESC";} 	 
+	if( $pie_contents == "CapitalNoRisk" ){	$ind = 6; $sort_order = " ORDER BY Impact_Net_Capital_NoRisk DESC";} 	 
 	
-	$sql = "select UserID , FullName, Impact_Net, Impact_Net_Labor, Impact_Net_Capital from GetCompanyBreakdown( ?, ? ) where (exclude = 0 OR exclude IS NULL)";
+	$sql = "select UserID , FullName, Impact_Net, Impact_Net_Capital, Impact_Net_Labor, Impact_Net_Labor_NoRisk,  CASE WHEN Impact_Net_Capital_NoRisk > 0 THEN Impact_Net_Capital_NoRisk ELSE 0 END from GetCompanyBreakdown( ?, ? ) where (exclude = 0 OR exclude IS NULL)";
 
 	if( $group_id > 0 )
 		$sql .= " AND GroupID = " . $group_id; 
@@ -101,7 +103,7 @@ elseif(isset ( $company_id) && !isset( $user_id ) ){
 // SINGLE USER
 elseif( isset ( $company_id) && isset( $user_id ) ){
 	$user = new CUser( $user_id, $company_id );
-	
+
 	$data = $user->getHistoryStateHighchart( true, $display_type );		
 	
 	$string = json_encode( $data );
