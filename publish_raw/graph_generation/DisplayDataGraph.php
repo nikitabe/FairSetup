@@ -332,17 +332,18 @@ include_once "get_hs_color_palette.php";
 										function prepareData( d_obj, field_index )
 										{
 											lead_space = 5;
+											post_space = 10;
 											output_series = Array
 																.apply( null, Array(d_obj.num_days + lead_space ))
 																.map(Number.prototype.valueOf,0);
-											j = 0;
+											j = lead_space;
 											last_value = 0;
 											for( i = 0; i < d_obj.data.length; i++){
 
 												// if this series is continuous
 												if( d_obj.field_names[field_index][4] == 1){
 													while( j < d_obj.data[i][0] ){
-														output_series[j] = last_value;
+														output_series[j+1] = last_value;
 														j++;
 													}
 												}
@@ -353,8 +354,13 @@ include_once "get_hs_color_palette.php";
 												// set the actual value
 												// +2 because the first field is date offset, date
 												last_value = d_obj.data[i][field_index + 2];
-												output_series[j + lead_space] = last_value;
+												output_series[j+1] = last_value;
 
+											}
+											// Fill out the end
+											while( j < d_obj.data[i-1][0] + post_space ){
+												output_series[j] = last_value;
+												j++;
 											}
 											return output_series;
 										}
