@@ -216,8 +216,8 @@ class CUser{
 			 array("Impact (flat)"				,5,	"rgba(0,150,0,0.7)		", "area"	, 0			, 0 ), // 5
 			 array("Impact (risk-adjusted)"		,6,	"rgba(0,200,0,0.7)		", "area"	, 0			, 0 ), // 6
 			 array("Time Spent"					,8,	"rgba(150,150,150,0.7)	", "area"	, 0			, 0 ), // 7
-			 array("Throttle"					,8,	"rgba(150,150,150,0.7)	", "line"	, 1			, 0 ), // 8
-			 array("Performance"					,9,	"rgba(0,0,0,0.7)	", "line"	, 1			, 0 )  // 9
+			 array("Throttle"					,8,	"rgba(150,150,150,0.7)	", "area"	, 0			, 0 ), // 8
+			 array("Performance"				,9,	"rgba(0,0,0,0.7)		", "line"	, 1			, 0 )  // 9
 			 );
 
 		if( $display_type == DISPLAY_NET_VALUE ){
