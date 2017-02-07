@@ -158,7 +158,7 @@ class CUser{
 
 		$sql = "select MIN( EventDate ), DateDiff( d, MIN( EventDate ), MAX( EventDate ) ) 
 					from user_events
-						 where ((PLevelID IS NOT NULL AND PLevelID > -1) OR (money_transfer IS NOT NULL)) and UserID = ? and CompanyID = ?  
+						 where ((PLevelID IS NOT NULL AND PLevelID > -1) OR (money_transfer IS NOT NULL) OR (Impact_onetime IS NOT NULL)) and UserID = ? and CompanyID = ?  
 					";
 
 		$stmt = sqlsrv_query( $db_conn->conn, $sql, Array( $this->user_id, $this->company_id ) );
@@ -194,46 +194,56 @@ class CUser{
 
 		$fields = 
 			array(
-			 "ISNULL( Impact_Net_Labor, 0) + ISNULL(Impact_Net_Capital,0)",
+			 "ISNULL( Impact_Net_Labor, 0) + ISNULL(Impact_Net_Capital,0) + ISNULL(Impact_Net_Onetime,0)",
 			 "ISNULL( Impact_Net_Labor, 0)",
 			 "ISNULL( Impact_Net_Capital, 0)",
+			 "ISNULL( Impact_Net_OneTime, 0)",
 			 "Level",
 			 "Level_Potential",
 			 "Impact_flat",
 			 "Impact_flat * ISNULL( RiskMultiplier, 1) as Impact_wRisk",
+			 "Impact_Onetime_flat",
+			 "Impact_Onetime_flat * ISNULL( RiskMultiplier, 1) as Impact_wRisk",			 
 			 "TimeSpent",
 			 "TimeSpent / 40",
 			 "PLevel_Backward");
 
 		$field_names = 
 			array(
-			// Name 					z-index  color 					   type     continuous	 visibility
-			 array("Net Impact"					,1,	"rgba(0,0,0,1)			", "line"	, 1			, 0 ), // 0
-			 array("Net Impact (labor only)"	,2,	"rgba(0,200,0,1)		", "line"	, 1			, 0 ), // 1
-			 array("Net Impact (capital only)"	,3,	"rgba(0,0,200,1)		", "line"	, 1			, 0 ), // 2
-			 array("Level"						,7,	"rgba(100,100,100,0.7)	", "line" 	, 1			, 0 ), // 3
-			 array("Potential Level"			,4,	"rgba(100,100,100,0.7)	", "area"	, 1			, 0 ), // 4
-			 array("Impact (flat)"				,5,	"rgba(0,150,0,0.7)		", "area"	, 0			, 0 ), // 5
-			 array("Impact (risk-adjusted)"		,6,	"rgba(0,200,0,0.7)		", "area"	, 0			, 0 ), // 6
-			 array("Time Spent"					,8,	"rgba(150,150,150,0.7)	", "area"	, 0			, 0 ), // 7
-			 array("Throttle"					,8,	"rgba(150,150,150,0.7)	", "area"	, 0			, 0 ), // 8
-			 array("Performance"				,9,	"rgba(0,0,0,0.7)		", "line"	, 1			, 0 )  // 9
+			// Name 									z-index  color 					   type     	continuous	 visibility
+			 array("Net Impact"					        ,4,	"rgba(0,0,0,1)				", "line"	, 1			, 0 ), // 0
+			 array("Net Impact (labor only)"	        ,3,	"rgba(0,200,0,1)			", "line"	, 1			, 0 ), // 1
+			 array("Net Impact (capital only)"	        ,2,	"rgba(255,153,0,1)			", "line"	, 1			, 0 ), // 2
+			 array("Net Impact (onetime only)"	        ,1,	"rgba(0,0,200,1)			", "line"	, 1			, 0 ), // 3
+			 array("Level"						        ,7,	"rgba(100,100,100,0.7)		", "line" 	, 1			, 0 ), // 4
+			 array("Potential Level"			        ,4,	"rgba(100,100,100,0.7)		", "area"	, 1			, 0 ), // 5
+			 array("Impact (flat)"				        ,5,	"rgba(0,150,0,0.7)			", "area"	, 0			, 0 ), // 6
+			 array("Impact (risk-adjusted)"		        ,6,	"rgba(0,200,0,0.7)			", "area"	, 0			, 0 ), // 7
+			 array("Onetime Impact (flat)"				,5,	"rgba(200,150,100,0.7)		", "area"	, 0			, 0 ), // 8
+			 array("Onetime Impact (risk-adjusted)"		,6,	"rgba(200,200,100,0.7)		", "area"	, 0			, 0 ), // 9
+			 array("Time Spent"							,8,	"rgba(150,150,150,0.7)		", "area"	, 0			, 0 ), // 10
+			 array("Throttle"							,8,	"rgba(150,150,150,0.7)		", "area"	, 0			, 0 ), // 11
+			 array("Performance"						,9,	"rgba(0,0,0,0.7)			", "line"	, 1			, 0 )  // 12
 			 );
 
 		if( $display_type == DISPLAY_NET_VALUE ){
 			$field_names[0][5] = 1;
 			$field_names[1][5] = 1;
 			$field_names[2][5] = 1;
+			$field_names[3][5] = 1;
 		}
 		else if( $display_type == DISPLAY_IMPACT ){
-			$field_names[3][5] = 1;
 			$field_names[4][5] = 1;			
 			$field_names[5][5] = 1;			
 			$field_names[6][5] = 1;			
-		}
-		else if( $display_type == DISPLAY_BEHAVIOR){
+			$field_names[7][5] = 1;
 			$field_names[8][5] = 1;
 			$field_names[9][5] = 1;			
+			$field_names[10][5] = 1;
+		}
+		else if( $display_type == DISPLAY_BEHAVIOR){
+			$field_names[11][5] = 1;			
+			$field_names[12][5] = 1;
 		}
 
 		// Get User Net Value
@@ -243,7 +253,7 @@ class CUser{
 			c.EventDate,
 			[FIELDS]
 						from user_events_cache c inner join user_events e on c.EventID = e.EventID
-						where (PLevel_Backward IS NOT NULL OR e.money_transfer IS NOT NULL) and c.UserID = ? and c.CompanyID = ?  
+						where (PLevel_Backward IS NOT NULL OR e.money_transfer IS NOT NULL OR e.Impact_onetime IS NOT NULL) and c.UserID = ? and c.CompanyID = ?  
 						order by c.EventDate ASC";
 
 		$sql = str_replace( "[FIELDS]", implode( ",", $fields ), $sql );
