@@ -212,8 +212,8 @@ class CUser{
 			array(
 			// Name 									z-index  color 					   type     	continuous	 visibility
 			 array("Net Impact"					        ,4,	"rgba(0,0,0,1)				", "line"	, 1			, 0 ), // 0
-			 array("Net Impact (labor only)"	        ,3,	"rgba(253,207,121,1)		", "line"	, 1			, 0 ), // 1
-			 array("Net Impact (capital only)"	        ,2,	"rgba(255,153,0,1)			", "line"	, 1			, 0 ), // 2
+			 array("Net Impact (labor only)"	        ,3,	"rgba(0,200,0,1)			", "line"	, 1			, 0 ), // 1
+			 array("Net Impact (capital only)"	        ,2,	"rgba(253,207,121,1)		", "line"	, 1			, 0 ), // 2
 			 array("Net Impact (onetime only)"	        ,1,	"rgba(215,215,0,1)			", "line"	, 1			, 0 ), // 3
 			 array("Level"						        ,7,	"rgba(100,100,100,0.7)		", "line" 	, 1			, 0 ), // 4
 			 array("Potential Level"			        ,4,	"rgba(100,100,100,0.7)		", "area"	, 1			, 0 ), // 5
