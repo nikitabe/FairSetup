@@ -194,19 +194,19 @@ class CUser{
 
 		$fields = 
 			array(
-			 "ISNULL( Impact_Net_Labor, 0) + ISNULL(Impact_Net_Capital,0) + ISNULL(Impact_Net_Onetime,0)",
-			 "ISNULL( Impact_Net_Labor, 0)",
-			 "ISNULL( Impact_Net_Capital, 0)",
-			 "ISNULL( Impact_Net_OneTime, 0)",
-			 "Level",
-			 "Level_Potential",
-			 "Impact_flat",
-			 "Impact_flat * ISNULL( RiskMultiplier, 1) as Impact_wRisk",
-			 "Impact_Onetime_flat",
-			 "Impact_Onetime_flat * ISNULL( RiskMultiplier, 1) as Impact_wRisk",			 
-			 "TimeSpent",
-			 "TimeSpent / 40",
-			 "PLevel_Backward");
+			 "MAX( ISNULL( Impact_Net_Labor, 0) + ISNULL(Impact_Net_Capital,0) + ISNULL(Impact_Net_Onetime,0))",
+			 "MAX( ISNULL( Impact_Net_Labor, 0) )",
+			 "MAX( ISNULL( Impact_Net_Capital, 0) )",
+			 "MAX( ISNULL( Impact_Net_OneTime, 0) )",
+			 "MAX( Level )",
+			 "MAX( Level_Potential )",
+			 "MAX( Impact_flat )",
+			 "MAX( Impact_flat * ISNULL( RiskMultiplier, 1)) as Impact_wRisk" ,
+			 "MAX( Impact_Onetime_flat)" ,
+			 "MAX( Impact_Onetime_flat * ISNULL( RiskMultiplier, 1)) as Impact_wRisk",
+			 "MAX( TimeSpent )" ,
+			 "MAX( TimeSpent / 40 )" ,
+			 "MAX( PLevel_Backward )");
 
 		$field_names = 
 			array(
@@ -254,7 +254,7 @@ class CUser{
 			[FIELDS]
 						from user_events_cache c inner join user_events e on c.EventID = e.EventID
 						where (PLevel_Backward IS NOT NULL OR e.money_transfer IS NOT NULL OR e.Impact_onetime IS NOT NULL) and c.UserID = ? and c.CompanyID = ?  
-						order by c.EventDate ASC";
+						group by c.EventDate order by c.EventDate ASC";
 
 		$sql = str_replace( "[FIELDS]", implode( ",", $fields ), $sql );
 
