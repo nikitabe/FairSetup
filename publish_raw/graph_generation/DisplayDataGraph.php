@@ -316,6 +316,7 @@ include_once "get_hs_color_palette.php";
 								  })
 								  .fail(function() { 
 									 $( "#waiting" ).slideUp("fast", function(){
+										$( "#error" ).html( "Error at: " + data_url );
 										$( "#error" ).slideDown( "slow" );
 										});
 									 

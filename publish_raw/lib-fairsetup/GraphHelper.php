@@ -171,13 +171,15 @@ class CUser{
 		$values = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_BOTH );
 		sqlsrv_free_stmt( $stmt );	
 		$ret_obj = new stdClass();
-		$ret_obj->start_date = date( 'Y-m-d', $values[0]->getTimestamp() );
-		$ret_obj->num_days = $values[1];
+		if( $values[0] ){
+			$ret_obj->start_date = date( 'Y-m-d', $values[0]->getTimestamp() );
+			$ret_obj->num_days = $values[1];
+		}
 		return $ret_obj;
 	}
 
 	// individual_user - do not place users's name
-	function getHistoryStateHighchart( $individual_user = false, $display_type = NET_VALUE )
+	function getHistoryStateHighchart( $individual_user = false, $display_type = DISPLAY_NET_VALUE )
 	{
 		// NOT READY TO YET
 		global $db_conn;
@@ -189,6 +191,7 @@ class CUser{
 
 		$obj_ret = array();
 		$date_info = $this->GetDateInfo();	
+		if( !property_exists ( 'date_info', 'start_date' ) ) return;
 
 		$fields = array();
 
