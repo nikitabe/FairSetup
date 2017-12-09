@@ -191,7 +191,6 @@ class CUser{
 
 		$obj_ret = array();
 		$date_info = $this->GetDateInfo();	
-		if( !property_exists ( 'date_info', 'start_date' ) ) return;
 
 		$fields = array();
 
@@ -250,6 +249,7 @@ class CUser{
 		}
 
 		// Get User Net Value
+		if( !property_exists ( $date_info, 'start_date' ) ) return;
 
 		$sql = "select 
 			DateDiff( d, '" . $date_info->start_date ."', c.EventDate ),
