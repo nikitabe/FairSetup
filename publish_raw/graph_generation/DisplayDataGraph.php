@@ -330,9 +330,8 @@ include_once "get_hs_color_palette.php";
 										// d_obj - the incoming object to process
 										//   name, start_date, num_days, data ( [day_index, value1, value2, etc.] )
 										// field_index - index of the value in d_obj.data.  0 is day_index 
-										function prepareData( d_obj, field_index )
+										function prepareData( d_obj, field_index, lead_space )
 										{
-											lead_space = 5;
 											post_space = 10;
 											output_series = Array
 																.apply( null, Array(d_obj.num_days + lead_space ))
@@ -369,16 +368,19 @@ include_once "get_hs_color_palette.php";
 										// Sets up a single series for user for field_index
 										function SetUpSeries( user_object, field_index )
 										{
+											lead_space = 5;
+
 											var ret_obj = {}
 											ret_obj.name = user_object.field_names[field_index][0];
-											ret_obj.pointStart = user_object.start_date;
+											ret_obj.pointStart = user_object.start_date - (lead_space+1) * 24 * 60 * 60 * 1000;
+
 											ret_obj.pointInterval =  3600 * 1000 * 24;
 
-											ret_obj.data = prepareData( user_object, field_index ); 
+											ret_obj.data = prepareData( user_object, field_index, lead_space ); 
  											ret_obj.zIndex 	= user_object.field_names[field_index][1];
  											ret_obj.color 	= user_object.field_names[field_index][2];
  											ret_obj.type 	= user_object.field_names[field_index][3];
- 											ret_obj.step 	= 'center'
+ 											ret_obj.step 	= 'left'
  											ret_obj.visible	= (user_object.field_names[field_index][5] == 1);
  											console.log( ret_obj.visible );
  											return ret_obj;
