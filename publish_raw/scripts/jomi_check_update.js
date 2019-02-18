@@ -12,7 +12,7 @@ function check_reload(){
 				clearTimeout( t );
             }
 			else{
-                console.log( 'we good' );
+                console.log( 'We good. No updates since: ' + last_publish );
                 t= setTimeout(check_reload, per);
             }
         }
