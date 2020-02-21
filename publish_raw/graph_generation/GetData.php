@@ -75,6 +75,7 @@ if( isset ( $date_to_show ) ){
 }
 // COMPLETE COMPANY DATA
 elseif(isset ( $company_id) && !isset( $user_id ) ){
+	// Note that no_equity is not taken into account here.
 	$sql = "select uc.UserId, NameInCompany from user_to_company uc left join user_to_group ug on uc.UserID = ug.UserID and uc.CompanyID = ug.CompanyID where (uc.exclude IS NULL or uc.exclude = 0) and uc.CompanyID = ?";
 	$params = Array( $company_id );
 
