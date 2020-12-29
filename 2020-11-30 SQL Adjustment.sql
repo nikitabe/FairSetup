@@ -9,6 +9,17 @@ GO
 
 
 
+USE [FairSetup]
+GO
+/****** Object:  Trigger [dbo].[UpdateFinalNumbers]    Script Date: 12/10/2020 3:10:16 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
 ALTER TRIGGER [dbo].[UpdateFinalNumbers]
    ON  [dbo].[eval_cycle_details]
    AFTER UPDATE
@@ -45,6 +56,7 @@ BEGIN
 						 + ISNULL( inserted.reverse_investment, 0 )
 						 + ISNULL( inserted.commission_reverse, 0)
 		from inserted inner join View_Eval_Cycle_Details vd on inserted.EvaluationItemID = vd.EvaluationItemID
+		where inserted.EvaluationItemID = eval_cycle_details.EvaluationItemID 
 
 		update eval_cycle_details set 
 			final_impact_in =  eval_cycle_details.final_impact_to_apply 
@@ -53,10 +65,6 @@ BEGIN
 		from inserted inner join View_Eval_Cycle_Details vd on inserted.EvaluationItemID = vd.EvaluationItemID
 		where inserted.EvaluationItemID = eval_cycle_details.EvaluationItemID 
 
-		IF EXISTS (SELECT * FROM DELETED)
-			update eval_cycle_details set 
-			TimeApplied = ISNULL( inserted.TimeApplied, GETDATE() ) -- if this is the first time we are inserting, let's update the time 
-			from inserted inner join View_Eval_Cycle_Details vd on inserted.EvaluationItemID = vd.EvaluationItemID
 
 	END
 
