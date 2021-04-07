@@ -1,40 +1,3 @@
-alter table payment_events
-	drop column Valuation
-
-alter table user_events_cache
-	add valuation money,
-		payout_amount money,
-		percentage float
-
-alter table user_payments
-	add comment varchar(max)
-
-alter table log_calc
-	add Comment varchar(max)
-
-EXEC sp_rename 'user_events_cache.Impact_money_risk_adjusted', 'Impact_money_w_risk', 'COLUMN';
-
-create view_user_payments
-
-alter table user_events_cache
-	drop column Valuation 
-
-alter table user_to_company
-	add calc_status varchar(100)
-
-
-Alter View_CompanyUsers
-
-alter view_UserEventHistory
-
-
-ALTER PROCEDURE [dbo].[ProcessPayment]
-
-ALTER FUNCTION [dbo].[GetCompanyBreakdown]
-
-ALTER PROCEDURE [dbo].[RegenerateCompanyData]
-
-ALTER PROCEDURE [dbo].[UpdateUsersInCompany]
 
 
 ----  Removing money_cash
@@ -691,3 +654,125 @@ END
 
 GO
 
+---
+alter table transactions
+	add UserID bigint,
+	CreatedDate datetime,
+	EventDate datetime
+GO
+
+ALTER VIEW [dbo].[View_UserEventHistory] AS
+SELECT e.EventID,
+    CASE
+        WHEN l.Name IS NOT NULL THEN '' + l.Name
+        WHEN e.FLevelID IS NOT NULL THEN 
+            CASE
+                WHEN FLevelID = - 2 THEN '---Throttle: No Change'
+                ELSE '---Throttle: ' + f.Name
+            END
+        WHEN e.PLevelID IS NOT NULL AND e.PLevelID > 0  THEN
+            CASE 
+            WHEN e.is_core = 1 THEN '-----' + p.Name + ' (Core)'
+            ELSE '-----' + p.Name
+            END
+        WHEN e.LongCycleMultiplier IS NOT NULL THEN '-----Long Cycle:' + FORMAT(e.LongCycleMultiplier, 'N')
+        WHEN Money_Transfer IS NOT NULL THEN
+            CASE 
+                WHEN Impact_onetime IS NOT NULL THEN 'Impact / Cash'
+                WHEN t.TransactionID IS NOT NULL THEN CONCAT( t.FullName_From, ' --> ', t.FullName_To )
+            END
+        WHEN Money_Transfer IS NOT NULL THEN
+            CASE
+            WHEN valuation IS NOT NULL THEN 'Investment (w/ penalty): $' + Format(Money_Transfer, 'N')
+            WHEN valuation IS NULL THEN 'Investment: $' + Format(Money_Transfer, 'N')
+        END
+        WHEN Impact_onetime IS NOT NULL THEN 'One-time Impact: $' + Format(Impact_onetime, 'N')
+        ELSE 'Comment'
+    END AS Event,
+    e.UserID,
+    e.CompanyID,
+    e.EventDate,
+    e.Comment,
+    e.LongCycleMultiplier,
+    CASE
+        WHEN p.Name IS NOT NULL THEN p.Name
+        ELSE ''
+    END AS Evaluation,
+    CASE
+        WHEN p.Name IS NOT NULL
+        AND e.FLevelID IS NOT NULL THEN p.Name
+        ELSE ''
+    END AS Throttle,
+    l.Name AS [Level],
+    l.[Level] AS LevelValue,
+    e.T_to_saturation,
+    l.LevelID,
+    p.PLevelID,
+    p.PLevel,
+    p.Name AS PName,
+    REPLACE(
+        REPLACE(
+            CASE
+                WHEN LEN(e.Comment) > 50 THEN LEFT(e.Comment, 50) + '...'
+                ELSE e.Comment
+            END,
+            CHAR(10),
+            '<BR/>'
+        ),
+        '  ',
+        '&nbsp&nbsp'
+    ) AS HTML_Comment_Limited,
+    REPLACE(e.Comment, '  ', '&nbsp&nbsp') AS HTML_Comment,
+    e.money_transfer,
+    e.Impact_onetime,
+    CASE
+        WHEN l.Name IS NOT NULL THEN '#fff'
+        WHEN e.FLevelID IS NOT NULL THEN '#FFE'
+        WHEN e.PLevelID IS NOT NULL
+        AND e.PLevelID > 0 THEN '#CEF'
+        WHEN e.LongCycleMultiplier IS NOT NULL THEN '#CBF'
+        WHEN Money_Transfer IS NOT NULL THEN '#D7D700'
+        WHEN Impact_onetime IS NOT NULL THEN '#FFE5B4'
+        ELSE '#EEE'
+    END AS BG_Color,
+    e.is_core,
+    e.FLevelID,
+    e.FilledOutLate,
+    e.TimeSpent,
+    dbo.user_events_cache.Level_Potential,
+    dbo.user_events_cache.LevelGrowthPerHour,
+    dbo.user_events_cache.LevelDecayPerDay,
+    dbo.user_events_cache.RiskMultiplier,
+    dbo.user_events_cache.LongCycleMultiplier AS Expr1,
+    dbo.user_events_cache.[Level] AS Expr2,
+    dbo.user_events_cache.PLevel_Backward,
+    dbo.user_events_cache.Effective_LevelID,
+    dbo.user_events_cache.T_to_saturation AS Expr3,
+    dbo.user_events_cache.Impact_w_risk,
+    dbo.user_events_cache.Impact_flat,
+    dbo.user_events_cache.Impact_per_hour,
+    dbo.user_events_cache.ImpactPerHour_start,
+    dbo.user_events_cache.ImpactPerHour_end,
+    dbo.user_events_cache.Impact_w_long_cycle,
+    dbo.user_events_cache.Impact_w_long_cycle_risk,
+    dbo.user_events_cache.Impact_money_flat,
+    dbo.user_events_cache.Impact_money_w_risk,
+    e.reset_potential,
+    dbo.user_events_cache.Impact_Net_Labor,
+    dbo.user_events_cache.Impact_Net_Capital,
+    dbo.user_events_cache.Impact_Net_Onetime,
+    dbo.users.FullName,
+    e.PaymentEventID,
+    dbo.user_events_cache.impact_onetime_w_risk,
+    ISNULL(
+        dbo.user_events_cache.Impact_w_long_cycle_risk,
+        0
+    ) + ISNULL(dbo.user_events_cache.Impact_money_w_risk, 0) + ISNULL(dbo.user_events_cache.impact_onetime_w_risk, 0) AS ImpactChange
+FROM dbo.users
+    INNER JOIN dbo.user_events_cache ON dbo.users.UserID = dbo.user_events_cache.UserID
+    RIGHT OUTER JOIN dbo.user_events AS e ON dbo.user_events_cache.EventID = e.EventID
+    LEFT OUTER JOIN dbo.user_levels AS l ON e.LevelID = l.LevelID
+    LEFT OUTER JOIN dbo.user_performance_levels AS p ON e.PLevelID = p.PLevelID
+    LEFT OUTER JOIN dbo.user_performance_levels AS f ON e.FLevelID = f.PLevelID
+    LEFT OUTER JOIN dbo.View_Transactions t on t.TransactionID = e.TransactionID 
+GO
