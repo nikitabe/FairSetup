@@ -29,4 +29,5 @@ ALTER table users
 GO
 
 update users Set TimeOffset = 0
-
+GO
+ GRANT EXECUTE ON Timer_GetRange TO FairSetup_App
